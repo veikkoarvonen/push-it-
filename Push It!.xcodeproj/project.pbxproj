@@ -29,6 +29,21 @@
 			path = "Push It!";
 			sourceTree = "<group>";
 		};
+		B685DC032F1D781B0024C57B /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		B685DC052F1D78380024C57B /* Control */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Control;
+			sourceTree = "<group>";
+		};
+		B685DC102F1E47940024C57B /* Fonts */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,8 +60,11 @@
 		B685DBDF2F1D77280024C57B = {
 			isa = PBXGroup;
 			children = (
+				B685DC032F1D781B0024C57B /* Model */,
+				B685DC052F1D78380024C57B /* Control */,
 				B685DBEA2F1D77280024C57B /* Push It! */,
 				B685DBE92F1D77280024C57B /* Products */,
+				B685DC102F1E47940024C57B /* Fonts */,
 			);
 			sourceTree = "<group>";
 		};
@@ -75,6 +93,9 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B685DBEA2F1D77280024C57B /* Push It! */,
+				B685DC032F1D781B0024C57B /* Model */,
+				B685DC052F1D78380024C57B /* Control */,
+				B685DC102F1E47940024C57B /* Fonts */,
 			);
 			name = "Push It!";
 			packageProductDependencies = (

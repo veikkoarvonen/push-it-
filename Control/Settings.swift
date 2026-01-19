@@ -1,13 +1,13 @@
 //
-//  ViewController.swift
+//  Settings.swift
 //  Push It!
 //
-//  Created by Veikko Arvonen on 18.1.2026.
+//  Created by Veikko Arvonen on 19.1.2026.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
+class SettingsVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,4 +16,3 @@ class ViewController: UIViewController {
 
 
 }
-
