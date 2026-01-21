@@ -211,8 +211,7 @@ extension ScreentimeVC {
     private func setPushUpCountElements() {
         
         let marginX: CGFloat = 30.0
-        let marginY: CGFloat = 10.0
-        let sliderHeigth: CGFloat = 50.0
+        let sliderHeigth: CGFloat = 40.0
         let labelHeight: CGFloat = 25.0
         let containerFrame = uiElements.pushUpCountContainer.frame
         
@@ -232,23 +231,21 @@ extension ScreentimeVC {
         builder.styleLabel(header: upperLabel, text: "50", fontSize: 20.0, textColor: .white, alignment: .center)
         upperLabel.textAlignment = .center
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        upperLabel.frame = CGRect(x: marginX, y: marginY, width: containerFrame.width - marginX * 2, height: labelHeight)
+        upperLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.pushUpCountContainer.addSubview(upperLabel)
         
         let lowerLabel = UILabel()
         builder.styleLabel(header: lowerLabel, text: "push ups give you", fontSize: 20.0, textColor: .white, alignment: .center)
         lowerLabel.textAlignment = .center
         lowerLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        lowerLabel.frame = CGRect(x: marginX, y: containerFrame.height - marginY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
+        lowerLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.maxY, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.pushUpCountContainer.addSubview(lowerLabel)
         
     }
-    
     private func setMinuteCountElements() {
         
         let marginX: CGFloat = 30.0
-        let marginY: CGFloat = 10.0
-        let sliderHeigth: CGFloat = 50.0
+        let sliderHeigth: CGFloat = 40.0
         let labelHeight: CGFloat = 25.0
         let containerFrame = uiElements.minuteCountContainer.frame
         
@@ -267,14 +264,14 @@ extension ScreentimeVC {
         builder.styleLabel(header: upperLabel, text: "50", fontSize: 20.0, textColor: .white, alignment: .center)
         upperLabel.textAlignment = .center
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        upperLabel.frame = CGRect(x: marginX, y: marginY, width: containerFrame.width - marginX * 2, height: labelHeight)
+        upperLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.minuteCountContainer.addSubview(upperLabel)
         
         let lowerLabel = UILabel()
         builder.styleLabel(header: lowerLabel, text: "minutes of screentime", fontSize: 20.0, textColor: .white, alignment: .center)
         lowerLabel.textAlignment = .center
         lowerLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        lowerLabel.frame = CGRect(x: marginX, y: containerFrame.height - marginY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
+        lowerLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.maxY, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.minuteCountContainer.addSubview(lowerLabel)
         
     }
