@@ -23,6 +23,6 @@ struct C {
         static let gray4 = "gray4"
     }
     
-    static let testUIwithBackgroundColor: Bool = false
+    static let testUIwithBackgroundColor: Bool = true
     
 }

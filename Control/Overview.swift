@@ -23,6 +23,7 @@ class OverviewVC: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         guard !hasSetUI else { return }
+        hasSetUI = true
         setUI()
         
     }
