@@ -23,6 +23,11 @@ struct C {
         static let gray4 = "gray4"
     }
     
+    struct userDefaultValues {
+        static let pushUps: String = "pushUps"
+        static let minutes: String = "minutes"
+    }
+    
     static let testUIwithBackgroundColor: Bool = false
     
 }

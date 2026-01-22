@@ -21,7 +21,7 @@ class TokensVC: UIViewController {
         guard let tappedView = gesture.view else { return }
         let index = tappedView.tag
         print("Token tapped at index:", index)
-
+        
     }
 
 

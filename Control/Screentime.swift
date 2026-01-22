@@ -23,6 +23,7 @@ class ScreentimeVC: UIViewController {
         guard !hasSetUI else { return }
         hasSetUI = true
         setUI()
+        reloadSliderValues()
         
     }
     
@@ -33,15 +34,41 @@ class ScreentimeVC: UIViewController {
     @objc private func pushUpSliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(sender.value.rounded())
         sender.value = Float(roundedValue) // snap slider to whole numbers
-
-        print("Push-ups selected:", roundedValue)
+        uiElements.pushUpLabel.text = "\(roundedValue)"
+        UserDefaults.standard.set(roundedValue, forKey: C.userDefaultValues.pushUps)
     }
     
     @objc private func minuteSliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(sender.value.rounded())
         sender.value = Float(roundedValue) // snap slider to whole numbers
-
-        print("Minutes selected:", roundedValue)
+        uiElements.minuteLabel.text = "\(roundedValue)"
+        UserDefaults.standard.set(roundedValue, forKey: C.userDefaultValues.minutes)
+    }
+    
+    private func reloadSliderValues() {
+        
+        guard hasSetUI else { return }
+        
+        if let savedPushUpsValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int {
+            uiElements.pushUpSlider.value = Float(savedPushUpsValue)
+            uiElements.pushUpLabel.text = "\(savedPushUpsValue)"
+        } else {
+            print("No push ups saved in user defaults, setting default value")
+            uiElements.pushUpSlider.value = 20
+            uiElements.pushUpLabel.text = "20"
+            UserDefaults.standard.set(20, forKey: C.userDefaultValues.pushUps)
+        }
+        
+        if let savedMinutesValue = UserDefaults.standard.value(forKey: C.userDefaultValues.minutes) as? Int {
+            uiElements.minuteSlider.value = Float(savedMinutesValue)
+            uiElements.minuteLabel.text = "\(savedMinutesValue)"
+        } else {
+            print("No minutes saved in user defaults, setting default value")
+            uiElements.minuteSlider.value = 20
+            uiElements.minuteLabel.text = "20"
+            UserDefaults.standard.set(20, forKey: C.userDefaultValues.minutes)
+        }
+        
     }
 
 
@@ -233,6 +260,7 @@ extension ScreentimeVC {
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
         upperLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.pushUpCountContainer.addSubview(upperLabel)
+        uiElements.pushUpLabel = upperLabel
         
         let lowerLabel = UILabel()
         builder.styleLabel(header: lowerLabel, text: "push ups give you", fontSize: 20.0, textColor: .white, alignment: .center)
@@ -266,6 +294,7 @@ extension ScreentimeVC {
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
         upperLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.minuteCountContainer.addSubview(upperLabel)
+        uiElements.minuteLabel = upperLabel
         
         let lowerLabel = UILabel()
         builder.styleLabel(header: lowerLabel, text: "minutes of screentime", fontSize: 20.0, textColor: .white, alignment: .center)
@@ -289,8 +318,9 @@ struct ScreentimeUIElements {
     var blockAppsLabel: UILabel!
     var pushUpCountContainer: UIView!
     var pushUpSlider: UISlider!
+    var pushUpLabel: UILabel!
     var minuteCountContainer: UIView!
     var minuteSlider: UISlider!
-    
+    var minuteLabel: UILabel!
 }
 
