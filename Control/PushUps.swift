@@ -15,11 +15,17 @@ class PushUpsVC: UIViewController {
     @IBOutlet weak var pushUpsRemainingLabel: UILabel!
     @IBOutlet weak var pushUpsInstructionLabel: UILabel!
     
+    //camera preview
     private let cameraManager = CameraPreviewManager()
     private var cameraIsActive: Bool = false
+    
+    //Push up detection
     private let pushUpDetector = PushUpDetector()
     private var lastVisionTime = CACurrentMediaTime()
     private let visionInterval: CFTimeInterval = 0.10 // ~10 FPS
+    private var requiredPushUps: Int = 20 //Default value
+    
+    let coreData = CoreDataManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,9 +35,8 @@ class PushUpsVC: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        cameraManager.stopPreview()
-        cameraIsActive = false
-        updateUIState(cameraIsActive: cameraIsActive)
+        guard cameraIsActive else { return }
+        finishCameraSession()
     }
     
     @objc func handleCamTap() {
@@ -44,13 +49,14 @@ class PushUpsVC: UIViewController {
                     self.cameraIsActive = true
                     self.updateUIState(cameraIsActive: cameraIsActive)
                     
+                    pushUpCounterLabel.text = "\(requiredPushUps)"
+                    
                     cameraManager.onFrame = { [weak self] pixelBuffer in
                         guard let self, self.cameraIsActive else { return }
                         pushUpDetector.reset()
                         let now = CACurrentMediaTime()
                         guard now - self.lastVisionTime >= self.visionInterval else { return }
                         self.lastVisionTime = now
-
                         self.pushUpDetector.process(pixelBuffer: pixelBuffer)
                     }
 
@@ -60,9 +66,7 @@ class PushUpsVC: UIViewController {
                 }
             }
         } else {
-            cameraManager.stopPreview()
-            cameraIsActive = false
-            updateUIState(cameraIsActive: cameraIsActive)
+            finishCameraSession()
         }
     }
     
@@ -72,17 +76,37 @@ class PushUpsVC: UIViewController {
         cameraIconView.isUserInteractionEnabled = true
         updateUIState(cameraIsActive: cameraIsActive)
         
+        if let savedValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int {
+            requiredPushUps = savedValue
+        }
+        
         pushUpDetector.onUpdate = { [weak self] count, status in
             DispatchQueue.main.async {
-                // Add these labels to your UIElements struct if you haven’t yet
-                // Example:
-                // self?.uiElements.pushUpCountLabel.text = "\(count)"
-                // self?.uiElements.statusLabel.text = status
-
-                // If you don't have labels yet, at least print:
+                
+                guard let self else { return }
+                
+                let labelValue = self.requiredPushUps - count
+                
+                self.pushUpCounterLabel.text = "\(labelValue)"
+                
+                if labelValue >= 0 { self.finishCameraSession() }
+                
+               
                 print("Reps:", count, "Status:", status)
+                
             }
         }
+    }
+    
+    private func finishCameraSession() {
+        print("Finishing camera session, User completed \(pushUpDetector.count) push ups")
+        
+        if pushUpDetector.count > 0 { coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date()) }
+        
+        cameraManager.stopPreview()
+        pushUpDetector.reset()
+        cameraIsActive = false
+        updateUIState(cameraIsActive: cameraIsActive)
     }
 
 

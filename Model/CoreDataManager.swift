@@ -36,4 +36,35 @@ final class CoreDataManager {
         container.viewContext.automaticallyMergesChangesFromParent = true
     }
     
+    func saveContext() {
+        let context = viewContext
+        guard context.hasChanges else { return }
+        
+        do {
+            try context.save()
+        } catch {
+            print("Core Data save error: \(error)")
+        }
+    }
+    
+    //MARK: - Create workout
+    func createWorkout(reps: Int16, date: Date) {
+        let workout = Workout(context: viewContext)
+        workout.reps = reps
+        workout.date = date
+        saveContext()
+    }
+    
+    //MARK: - Fetch workouts
+    func fetchAllWorkouts() -> [Workout] {
+        let request: NSFetchRequest<Workout> = Workout.fetchRequest()
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Fetch all workouts error: \(error)")
+            return []
+        }
+    }
+    
 }
