@@ -190,6 +190,7 @@
                         <outlet property="cameraIconView" destination="A69-3M-sni" id="ONz-M7-b0J"/>
                         <outlet property="cameraLayerView" destination="69S-Ci-jJh" id="xG0-bi-216"/>
                         <outlet property="pushUpCounterLabel" destination="ILy-nC-UWA" id="Wul-ao-HnZ"/>
+                        <outlet property="pushUpStatusLabel" destination="gvT-go-wvO" id="AIp-fF-Wxd"/>
                         <outlet property="pushUpsInstructionLabel" destination="hOk-k1-ZL5" id="iPs-Q0-wzK"/>
                         <outlet property="pushUpsRemainingLabel" destination="mF1-jw-Sqy" id="E52-mX-eQH"/>
                     </connections>

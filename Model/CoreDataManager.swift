@@ -49,6 +49,7 @@ final class CoreDataManager {
     
     //MARK: - Create workout
     func createWorkout(reps: Int16, date: Date) {
+        print("Creating workout: \(reps) reps completed")
         let workout = Workout(context: viewContext)
         workout.reps = reps
         workout.date = date
@@ -64,6 +65,17 @@ final class CoreDataManager {
         } catch {
             print("Fetch all workouts error: \(error)")
             return []
+        }
+    }
+    
+    //MARK: - Log workouts
+    func logAllWorkouts() {
+        let workouts = fetchAllWorkouts()
+        for workout in workouts {
+            let date = workout.date ?? Date()
+            let comps = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            let formattedDateString = "\(comps.day!)/\(comps.month!)/\(comps.year!)"
+            print("Workout: \(formattedDateString), push ups: \(workout.reps), exact logTime: \(date)")
         }
     }
     

@@ -12,6 +12,7 @@ class OverviewVC: UIViewController {
     var hasSetUI: Bool = false
     let builder = UIBuilder()
     var uiElements = OverviewUIElements()
+    let coreData = CoreDataManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +26,7 @@ class OverviewVC: UIViewController {
         guard !hasSetUI else { return }
         hasSetUI = true
         setUI()
-        
+        coreData.logAllWorkouts()
     }
 
 

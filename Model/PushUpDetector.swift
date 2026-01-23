@@ -11,6 +11,7 @@ import CoreGraphics
 final class PushUpDetector {
 
     enum State { case up, down }
+    enum Status { case detecting, bodyNotVisible, up, down, moving, visionError }
 
     // Tune these after testing
     var downThreshold: CGFloat = 90
@@ -21,12 +22,12 @@ final class PushUpDetector {
     private var state: State = .up
     private(set) var count: Int = 0
 
-    var onUpdate: ((Int, String) -> Void)?
+    var onUpdate: ((Int, Status, CGFloat) -> Void)?
 
     func reset() {
         count = 0
         state = .up
-        onUpdate?(count, "Detecting…")
+        onUpdate?(count, Status.detecting, 0)
     }
 
     func process(pixelBuffer: CVPixelBuffer) {
@@ -34,13 +35,13 @@ final class PushUpDetector {
             guard let self else { return }
 
             if let error {
-                self.onUpdate?(self.count, "Vision error")
+                self.onUpdate?(self.count, Status.visionError, 0)
                 print("Vision error:", error)
                 return
             }
 
             guard let obs = request.results?.first as? VNHumanBodyPoseObservation else {
-                self.onUpdate?(self.count, "No body detected")
+                self.onUpdate?(self.count, Status.bodyNotVisible, 0)
                 return
             }
 
@@ -50,7 +51,7 @@ final class PushUpDetector {
         do {
             try sequenceHandler.perform([request], on: pixelBuffer)
         } catch {
-            onUpdate?(count, "Vision perform failed")
+            onUpdate?(count, Status.visionError, 0)
         }
     }
 
@@ -58,7 +59,7 @@ final class PushUpDetector {
         if let angle = elbowAngle(obs, side: .left) ?? elbowAngle(obs, side: .right) {
             updateState(with: angle)
         } else {
-            onUpdate?(count, "Body not fully visible")
+            onUpdate?(count, Status.bodyNotVisible, 0)
         }
     }
 
@@ -100,17 +101,17 @@ final class PushUpDetector {
     private func updateState(with angle: CGFloat) {
         if angle < downThreshold {
             state = .down
-            onUpdate?(count, "DOWN (\(Int(angle))°)")
+            onUpdate?(count, Status.down, angle)
         } else if angle > upThreshold {
             if state == .down {
                 state = .up
                 count += 1
-                onUpdate?(count, "UP (\(Int(angle))°) • Rep +1")
+                onUpdate?(count, Status.up, angle)
             } else {
-                onUpdate?(count, "UP (\(Int(angle))°)")
+                onUpdate?(count, Status.up, angle)
             }
         } else {
-            onUpdate?(count, "Moving (\(Int(angle))°)")
+            onUpdate?(count, Status.moving, angle)
         }
     }
 }
