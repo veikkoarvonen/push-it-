@@ -18,6 +18,8 @@ class PushUpsVC: UIViewController {
     private let cameraManager = CameraPreviewManager()
     private var cameraIsActive: Bool = false
     private let pushUpDetector = PushUpDetector()
+    private var lastVisionTime = CACurrentMediaTime()
+    private let visionInterval: CFTimeInterval = 0.10 // ~10 FPS
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +43,16 @@ class PushUpsVC: UIViewController {
                     guard let self else { return }
                     self.cameraIsActive = true
                     self.updateUIState(cameraIsActive: cameraIsActive)
+                    
+                    cameraManager.onFrame = { [weak self] pixelBuffer in
+                        guard let self, self.cameraIsActive else { return }
+                        pushUpDetector.reset()
+                        let now = CACurrentMediaTime()
+                        guard now - self.lastVisionTime >= self.visionInterval else { return }
+                        self.lastVisionTime = now
+
+                        self.pushUpDetector.process(pixelBuffer: pixelBuffer)
+                    }
 
 
                 case .failure(let error):
@@ -59,6 +71,18 @@ class PushUpsVC: UIViewController {
         cameraIconView.addGestureRecognizer(camTap)
         cameraIconView.isUserInteractionEnabled = true
         updateUIState(cameraIsActive: cameraIsActive)
+        
+        pushUpDetector.onUpdate = { [weak self] count, status in
+            DispatchQueue.main.async {
+                // Add these labels to your UIElements struct if you haven’t yet
+                // Example:
+                // self?.uiElements.pushUpCountLabel.text = "\(count)"
+                // self?.uiElements.statusLabel.text = status
+
+                // If you don't have labels yet, at least print:
+                print("Reps:", count, "Status:", status)
+            }
+        }
     }
 
 
