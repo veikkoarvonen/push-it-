@@ -12,6 +12,7 @@ class ScreentimeVC: UIViewController {
     var hasSetUI: Bool = false
     let builder = UIBuilder()
     var uiElements = ScreentimeUIElements()
+   
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,14 +72,15 @@ class ScreentimeVC: UIViewController {
         
     }
 
-
-
 }
+
+
 
 //MARK: - UI builder
 
 extension ScreentimeVC {
     
+   
     
     private func setUI() {
         setContainerViews(containerFrame: view.frame, safeArea: view.safeAreaInsets)

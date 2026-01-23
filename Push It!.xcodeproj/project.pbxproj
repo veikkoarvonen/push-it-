@@ -169,6 +169,7 @@
 				DEVELOPMENT_TEAM = Q2TQZ8WL57;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Push It!/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera to detect push ups";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -202,6 +203,7 @@
 				DEVELOPMENT_TEAM = Q2TQZ8WL57;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Push It!/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera to detect push ups";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

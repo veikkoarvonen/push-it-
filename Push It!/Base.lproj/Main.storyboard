@@ -35,8 +35,8 @@
         <scene sceneID="ouB-wR-lvW">
             <objects>
                 <viewController id="pWh-RB-JGr" customClass="ScreentimeVC" customModule="Push_It_" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Cwg-G8-HEf">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="769"/>
+                    <view key="view" contentMode="scaleToFill" misplaced="YES" id="Cwg-G8-HEf">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="735"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="KZt-Zk-5ie"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -53,8 +53,8 @@
         <scene sceneID="N8D-lf-Nf5">
             <objects>
                 <viewController id="KNa-9Z-jAW" customClass="TokensVC" customModule="Push_It_" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Pam-Mp-xKu">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="769"/>
+                    <view key="view" contentMode="scaleToFill" misplaced="YES" id="Pam-Mp-xKu">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="735"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="0zg-EU-p5d"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -96,6 +96,12 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rYG-13-7SZ">
                                 <rect key="frame" x="0.0" y="118" width="393" height="651"/>
                                 <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Press the Camera Icon to Perform Push Ups and Unlock Screentime" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hOk-k1-ZL5">
+                                        <rect key="frame" x="20" y="282.66666666666669" width="353" height="86"/>
+                                        <fontDescription key="fontDescription" name="SFProDisplay-Bold" family="SF Pro Display" pointSize="24"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pRS-JA-pVo">
                                         <rect key="frame" x="0.0" y="551" width="393" height="100"/>
                                         <subviews>
@@ -117,12 +123,6 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="69S-Ci-jJh">
                                         <rect key="frame" x="20" y="20" width="353" height="511"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Press the Camera Icon to Perform Push Ups and Unlock Screentime" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hOk-k1-ZL5">
-                                                <rect key="frame" x="10" y="212.66666666666669" width="333" height="86"/>
-                                                <fontDescription key="fontDescription" name="SFProDisplay-Bold" family="SF Pro Display" pointSize="24"/>
-                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Push Ups Remaining" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mF1-jw-Sqy">
                                                 <rect key="frame" x="10" y="465" width="333" height="36"/>
                                                 <fontDescription key="fontDescription" name="SFProDisplay-Bold" family="SF Pro Display" pointSize="30"/>
@@ -140,24 +140,24 @@
                                         <constraints>
                                             <constraint firstItem="ILy-nC-UWA" firstAttribute="leading" secondItem="69S-Ci-jJh" secondAttribute="leading" constant="10" id="3mo-Yj-9am"/>
                                             <constraint firstItem="mF1-jw-Sqy" firstAttribute="leading" secondItem="69S-Ci-jJh" secondAttribute="leading" constant="10" id="9Cz-hy-0b2"/>
-                                            <constraint firstAttribute="trailing" secondItem="hOk-k1-ZL5" secondAttribute="trailing" constant="10" id="9qU-7X-ZgQ"/>
-                                            <constraint firstItem="hOk-k1-ZL5" firstAttribute="leading" secondItem="69S-Ci-jJh" secondAttribute="leading" constant="10" id="FuS-zh-gZu"/>
                                             <constraint firstAttribute="trailing" secondItem="ILy-nC-UWA" secondAttribute="trailing" constant="10" id="Vdt-Fx-Pih"/>
                                             <constraint firstAttribute="bottom" secondItem="mF1-jw-Sqy" secondAttribute="bottom" constant="10" id="VyE-5N-4v0"/>
                                             <constraint firstAttribute="trailing" secondItem="mF1-jw-Sqy" secondAttribute="trailing" constant="10" id="d8Y-ec-Np1"/>
                                             <constraint firstItem="mF1-jw-Sqy" firstAttribute="top" secondItem="ILy-nC-UWA" secondAttribute="bottom" constant="5" id="hAf-Ml-yV7"/>
-                                            <constraint firstItem="hOk-k1-ZL5" firstAttribute="centerY" secondItem="69S-Ci-jJh" secondAttribute="centerY" id="kem-9j-LT1"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <color key="backgroundColor" name="gray1"/>
                                 <constraints>
+                                    <constraint firstItem="hOk-k1-ZL5" firstAttribute="centerY" secondItem="rYG-13-7SZ" secondAttribute="centerY" id="2V8-u2-plQ"/>
                                     <constraint firstItem="69S-Ci-jJh" firstAttribute="leading" secondItem="rYG-13-7SZ" secondAttribute="leading" constant="20" id="AQw-J2-OSY"/>
                                     <constraint firstAttribute="bottom" secondItem="pRS-JA-pVo" secondAttribute="bottom" id="Gl6-EC-LOs"/>
                                     <constraint firstAttribute="trailing" secondItem="69S-Ci-jJh" secondAttribute="trailing" constant="20" id="GxY-90-6pD"/>
                                     <constraint firstAttribute="trailing" secondItem="pRS-JA-pVo" secondAttribute="trailing" id="J8I-rz-LKB"/>
                                     <constraint firstItem="pRS-JA-pVo" firstAttribute="leading" secondItem="rYG-13-7SZ" secondAttribute="leading" id="SBf-a3-UNy"/>
                                     <constraint firstItem="69S-Ci-jJh" firstAttribute="top" secondItem="rYG-13-7SZ" secondAttribute="top" constant="20" id="SEk-d9-m5d"/>
+                                    <constraint firstItem="hOk-k1-ZL5" firstAttribute="leading" secondItem="rYG-13-7SZ" secondAttribute="leading" constant="20" id="UQg-pu-FzX"/>
+                                    <constraint firstAttribute="trailing" secondItem="hOk-k1-ZL5" secondAttribute="trailing" constant="20" id="W7U-52-Vp3"/>
                                     <constraint firstItem="pRS-JA-pVo" firstAttribute="top" secondItem="69S-Ci-jJh" secondAttribute="bottom" constant="20" id="yi9-Cd-rm4"/>
                                 </constraints>
                             </view>
