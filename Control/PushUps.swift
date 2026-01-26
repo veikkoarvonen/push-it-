@@ -48,18 +48,25 @@ class PushUpsVC: UIViewController {
                     // optional: update UI (button title, status label, etc.)
                     guard let self else { return }
                     self.cameraIsActive = true
+                    self.pushUpDetector.reset()
                     self.updateUIState(cameraIsActive: cameraIsActive)
+                    
+                    if let savedValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int {
+                        requiredPushUps = savedValue
+                    } else {
+                        requiredPushUps = 20
+                    }
                     
                     pushUpCounterLabel.text = "\(requiredPushUps)"
                     
                     cameraManager.onFrame = { [weak self] pixelBuffer in
                         guard let self, self.cameraIsActive else { return }
-                        pushUpDetector.reset()
                         let now = CACurrentMediaTime()
                         guard now - self.lastVisionTime >= self.visionInterval else { return }
                         self.lastVisionTime = now
                         self.pushUpDetector.process(pixelBuffer: pixelBuffer)
                     }
+                    
 
 
                 case .failure(let error):
@@ -119,9 +126,7 @@ extension PushUpsVC {
         addTextShadow(to: pushUpCounterLabel)
         addTextShadow(to: pushUpsRemainingLabel)
         
-        if let savedValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int {
-            requiredPushUps = savedValue
-        }
+        
         
         pushUpDetector.onUpdate = { [weak self] count, status, angle in
             DispatchQueue.main.async {
@@ -146,7 +151,7 @@ extension PushUpsVC {
                 self.pushUpStatusLabel.text = statusMessage
                 
                
-                //print("Reps:", count, "Status:", status, "Angle:", angle)
+                print("Reps:", count, "Status:", status, "Angle:", angle)
                 
             }
         }

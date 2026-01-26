@@ -29,5 +29,7 @@ struct C {
     }
     
     static let testUIwithBackgroundColor: Bool = false
+    static let testDataForThisWeek: [Int] = [14, 56, 35, 46, 31, 45, 23]
+    static let testDataForPreviousWeek: [Int] = [12, 23, 66, 21, 34, 56, 12]
     
 }

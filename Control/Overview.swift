@@ -13,12 +13,16 @@ class OverviewVC: UIViewController {
     let builder = UIBuilder()
     var uiElements = OverviewUIElements()
     let coreData = CoreDataManager()
+    let calManager = CalendarManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        tabBarController?.tabBar.tintColor = .white
-        tabBarController?.tabBar.unselectedItemTintColor = .white.withAlphaComponent(0.6)
+        
+        
+        //coreData.createWorkout(reps: Int16(16), date: Date())
+        //coreData.logAllWorkouts()
+        //print(calManager.pushUpsForWeek(weekOffset: 0))
     }
     
     override func viewDidLayoutSubviews() {
@@ -26,7 +30,8 @@ class OverviewVC: UIViewController {
         guard !hasSetUI else { return }
         hasSetUI = true
         setUI()
-        coreData.logAllWorkouts()
+        updateUIColumns(useTestData: false, animated: true)
+        updateLabels(useTestData: false)
     }
 
 
@@ -35,9 +40,88 @@ class OverviewVC: UIViewController {
 //MARK: - UI Builder
 extension OverviewVC {
     
+    private func updateUIColumns(useTestData: Bool, animated: Bool) {
+        
+        let dataForColumns: [Int] = useTestData ? C.testDataForThisWeek : calManager.pushUpsForWeek(weekOffset: 0).singleDates
+        
+        guard dataForColumns.count == 7 else { return }
+        guard uiElements.pushUpColumns.count == 7 else { return }
+        
+        print(dataForColumns)
+        
+        let highestValue: Int = dataForColumns.max() ?? 50
+        var maxSheetValue: Int {
+            var maxValue: Int = 10
+            while maxValue < highestValue {
+                maxValue += 10
+            }
+            return maxValue
+        }
+        
+        print("Highest value in array: \(highestValue), setting sheet max value to: \(maxSheetValue)")
+        
+        
+        for i in 0..<7 {
+            
+            if dataForColumns[i] == 0 {
+                print("Push up data for day \(i) is 0, not adding corresponding column")
+                uiElements.pushUpColumns[i].isHidden = true
+                continue
+            }
+            
+            let sheetHeigth = uiElements.pushUpColumnsContainer.frame.height
+            let relativeHeigthForColumn = CGFloat(dataForColumns[i]) / CGFloat(maxSheetValue)
+            let newHeight: CGFloat = sheetHeigth * relativeHeigthForColumn
+            
+            let yOffset: CGFloat = sheetHeigth - newHeight
+            
+            uiElements.pushUpColumns[i].isHidden = false
+            uiElements.pushUpColumns[i].frame.size.height = animated ? 0 : newHeight
+            uiElements.pushUpColumns[i].frame.origin.y = animated ? sheetHeigth : yOffset
+            
+            if animated {
+                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut]) { [self] in
+                    uiElements.pushUpColumns[i].frame.origin.y = yOffset
+                    uiElements.pushUpColumns[i].frame.size.height = newHeight
+                }
+            }
+            
+        }
+        
+     
+        
+    }
+    
+    private func updateLabels(useTestData: Bool) {
+        let totalPushUpsForThisWeek = useTestData ? C.testDataForThisWeek.reduce(0, +) : calManager.pushUpsForWeek(weekOffset: 0).total
+        uiElements.subheaderCounter1.text = "\(totalPushUpsForThisWeek)"
+        
+        let avgPushUps = totalPushUpsForThisWeek / 7
+        uiElements.footerCounter.text = "\(avgPushUps)"
+        
+        let totalPushUpsForLastWeek = useTestData ? C.testDataForPreviousWeek.reduce(0, +) : calManager.pushUpsForWeek(weekOffset: -1).total
+        
+        let avgPushUpsLastWeek = totalPushUpsForLastWeek / 7
+        
+        print("Total push ups for this week: \(totalPushUpsForThisWeek)")
+        print("Average push ups for this week: \(avgPushUps)")
+        print("Total push ups for last week: \(totalPushUpsForLastWeek)")
+        print("Average push ups for last week: \(avgPushUpsLastWeek)")
+        
+        
+        
+        
+        
+    }
+    
     private func setUI() {
         
         let margin: CGFloat = 30.0
+        
+        tabBarController?.tabBar.tintColor = .white
+        tabBarController?.tabBar.unselectedItemTintColor = .white.withAlphaComponent(0.6)
+        tabBarController?.tabBar.barTintColor = .white
+        tabBarController?.tabBar.isTranslucent = true
         
         setBackgroundView(containerFrame: view.frame, safeArea: view.safeAreaInsets)
         setHeader(containerFrame: uiElements.backGroundView.frame, margin: margin)
@@ -144,13 +228,14 @@ extension OverviewVC {
         chartContainer.backgroundColor = C.testUIwithBackgroundColor ? .gray : .clear
         chartContainer.frame = CGRect(x: margin, y: marginY, width: chartView.frame.width - margin * 2.0, height: chartView.frame.height - marginY * 2.0)
         chartView.addSubview(chartContainer)
+        uiElements.pushUpColumnsContainer = chartContainer
         
         //Lines
         
         var yOffset: CGFloat = 0.0
         let yInterval: CGFloat = chartContainer.frame.height / 5.0
         
-        for _ in 0..<5 {
+        for _ in 0...5 {
             let lineView = UIView()
             lineView.backgroundColor = C.testUIwithBackgroundColor ? .green : UIColor(named: C.colors.gray2)
             lineView.frame = CGRect(x: 0.0, y: yOffset, width: chartContainer.frame.width, height: 1.0)
@@ -244,6 +329,7 @@ struct OverviewUIElements {
     var subheaderCounter3: UILabel!
     
     var pushUpColumnsView: UIView!
+    var pushUpColumnsContainer: UIView!
     var pushUpColumns: [UIView]!
     
     var footerView: UIView!
