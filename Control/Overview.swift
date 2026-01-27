@@ -59,7 +59,7 @@ class OverviewVC: UIViewController {
         guard let columnView = gesture.view else { return }
 
         let index = columnView.tag
-        print("Column tapped at index:", index)
+        //print("Column tapped at index:", index)
         
         uiElements.pushUpDisplayView.isHidden = false
         uiElements.pushUpDisplayView.center.x = columnView.center.x

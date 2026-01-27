@@ -10,11 +10,22 @@ import UIKit
 class TokensVC: UIViewController {
     
     var hasSetUI: Bool = false
+    var tokenContainerViews: [UIView] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setUI()
+        reloadTokenViews()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if UserDefaults.standard.bool(forKey: C.userDefaultValues.shouldUpdateTokens) {
+            reloadTokenViews()
+            UserDefaults.standard.set(false, forKey: C.userDefaultValues.shouldUpdateTokens)
+        }
+        
     }
     
     @objc private func tokenTapped(_ gesture: UITapGestureRecognizer) {
@@ -22,6 +33,18 @@ class TokensVC: UIViewController {
         let index = tappedView.tag
         print("Token tapped at index:", index)
         
+    }
+    
+    private func reloadTokenViews() {
+        guard C.tokenLimits.count == tokenContainerViews.count else { return }
+        let totalPushUps = CalendarManager.shared.totalPushUps()
+        print("Reloading tokens!")
+        for i in 0..<C.tokenLimits.count {
+            let hasCompletedToken = totalPushUps >= C.tokenLimits[i]
+            tokenContainerViews[i].isUserInteractionEnabled = hasCompletedToken
+            tokenContainerViews[i].alpha = hasCompletedToken ? 1 : 0.5
+        }
+        UserDefaults.standard.set(false, forKey: C.userDefaultValues.shouldUpdateTokens)
     }
 
 
@@ -132,7 +155,7 @@ extension TokensVC {
                 tokenView.clipsToBounds = true
                 
                 let tokenImage = UIImageView()
-                tokenImage.image = UIImage(named: "camera")
+                tokenImage.image = UIImage(named: "tokensSmall")
                 tokenView.addSubview(tokenImage)
                 tokenImage.translatesAutoresizingMaskIntoConstraints = false
                 let size = view.frame.width / 6
@@ -156,6 +179,8 @@ extension TokensVC {
             let tap = UITapGestureRecognizer(target: self, action: #selector(tokenTapped(_:)))
             tokenView.addGestureRecognizer(tap)
         }
+        
+        tokenContainerViews = tokenViews
 
 
 

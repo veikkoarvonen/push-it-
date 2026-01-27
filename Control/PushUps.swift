@@ -51,6 +51,7 @@ class PushUpsVC: UIViewController {
             
             coreData.createWorkout(reps: 100, date: targetDate)
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
+            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
             return
         }
         
@@ -106,6 +107,7 @@ class PushUpsVC: UIViewController {
         if pushUpDetector.count > 0 {
             coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date())
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
+            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
             if withAlert { displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: pushUpDetector.count) }
         }
     }
