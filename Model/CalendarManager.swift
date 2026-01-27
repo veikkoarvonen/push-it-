@@ -61,4 +61,10 @@ final class CalendarManager {
         
     }
     
+    func totalPushUps() -> Int {
+        let allWorkouts = CoreDataManager().fetchAllWorkouts()
+        let totalPushups = allWorkouts.reduce(0) { $0 + $1.reps }
+        return Int(totalPushups)
+    }
+    
 }

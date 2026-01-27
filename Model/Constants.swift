@@ -26,10 +26,12 @@ struct C {
     struct userDefaultValues {
         static let pushUps: String = "pushUps"
         static let minutes: String = "minutes"
+        static let shouldUpdateSheet: String = "shouldUpdateSheet"
     }
     
     static let testUIwithBackgroundColor: Bool = false
     static let testDataForThisWeek: [Int] = [14, 56, 35, 46, 31, 45, 23]
     static let testDataForPreviousWeek: [Int] = [12, 23, 66, 21, 34, 56, 12]
+    static let testPushUpCreationWithoutCamera: Bool = true
     
 }

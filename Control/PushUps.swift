@@ -37,10 +37,24 @@ class PushUpsVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         guard cameraIsActive else { return }
-        finishCameraSession()
+        print("Push up view about to disappear, ending camera session")
+        finishCameraSession(withAlert: false)
     }
     
     @objc func handleCamTap() {
+        
+        if C.testPushUpCreationWithoutCamera {
+            print("Testing push up creation without camera, not starting camera session")
+            displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: 50)
+            
+            let targetDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+            
+            coreData.createWorkout(reps: 100, date: targetDate)
+            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
+            return
+        }
+        
+        
         if !cameraIsActive {
             cameraManager.startPreview(in: cameraLayerView) { [weak self] result in
                 switch result {
@@ -74,22 +88,26 @@ class PushUpsVC: UIViewController {
                 }
             }
         } else {
-            finishCameraSession()
+            finishCameraSession(withAlert: true)
         }
     }
     
-    private func finishCameraSession() {
+    private func finishCameraSession(withAlert: Bool) {
         
         guard cameraIsActive else { return }
         
         print("Finishing camera session, User completed \(pushUpDetector.count) push ups")
         
-        if pushUpDetector.count > 0 { coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date()) }
-        
         cameraManager.stopPreview()
         pushUpDetector.reset()
         cameraIsActive = false
         updateUIState(cameraIsActive: cameraIsActive)
+        
+        if pushUpDetector.count > 0 {
+            coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date())
+            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
+            if withAlert { displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: pushUpDetector.count) }
+        }
     }
 
 
@@ -109,6 +127,34 @@ extension PushUpsVC {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+    
+    private func displayPushUpCompletionAlert(title: String, completedPushUps: Int) {
+        
+        let savedPushUpValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int ?? 20
+        
+        let savedMinutesValue = UserDefaults.standard.value(forKey: C.userDefaultValues.minutes) as? Int ?? 20
+        
+        let pushUpPercentage = Double(completedPushUps) / Double(savedPushUpValue)
+        let earnedMinutes = pushUpPercentage * Double(savedMinutesValue)
+        let roundedMinutes = Int(earnedMinutes.rounded())
+        
+        print("Saved push up value is \(savedPushUpValue). Saved minutes value is \(savedMinutesValue). Push up percentage is \(pushUpPercentage) since user completed \(completedPushUps) push ups. This grants user \(earnedMinutes) minutes of screentime which is \(roundedMinutes) when rounded")
+        
+        
+        let fullMessage = "You compeleted \(completedPushUps) push ups! This earns you \(roundedMinutes) minutes of screentime."
+
+            let alert = UIAlertController(
+                title: title,
+                message: fullMessage,
+                preferredStyle: .alert
+            )
+
+            let okAction = UIAlertAction(title: "OK", style: .default)
+            alert.addAction(okAction)
+
+            present(alert, animated: true)
+        
     }
     
 }
@@ -137,7 +183,7 @@ extension PushUpsVC {
                 
                 self.pushUpCounterLabel.text = "\(labelValue)"
                 
-                if labelValue <= 0 { self.finishCameraSession() }
+                if labelValue <= 0 { self.finishCameraSession(withAlert: true) }
                 
                 var statusMessage: String {
                     switch status {

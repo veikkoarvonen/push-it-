@@ -15,6 +15,8 @@ class OverviewVC: UIViewController {
     let coreData = CoreDataManager()
     let calManager = CalendarManager()
 
+//MARK: - View controller lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -33,6 +35,80 @@ class OverviewVC: UIViewController {
         updateUIColumns(useTestData: false, animated: true)
         updateLabels(useTestData: false)
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if UserDefaults.standard.bool(forKey: C.userDefaultValues.shouldUpdateSheet) {
+            updateUIColumns(useTestData: false, animated: true)
+            updateLabels(useTestData: false)
+            UserDefaults.standard.set(false, forKey: C.userDefaultValues.shouldUpdateSheet)
+            print("Push ups have changed, updating UI columns.")
+        } else {
+            print("View did appear but no need to update UI columns.")
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        uiElements.pushUpDisplayView.isHidden = true
+    }
+    
+//MARK: - Objc funcs
+    
+    @objc private func columnTapped(_ gesture: UITapGestureRecognizer) {
+        guard let columnView = gesture.view else { return }
+
+        let index = columnView.tag
+        print("Column tapped at index:", index)
+        
+        uiElements.pushUpDisplayView.isHidden = false
+        uiElements.pushUpDisplayView.center.x = columnView.center.x
+        uiElements.pushUpDisplayView.frame.origin.y = columnView.frame.minY - 20.0
+        
+        var upperText: String {
+            switch index {
+            case 0: return "Mon"
+            case 1: return "Tue"
+            case 2: return "Wed"
+            case 3: return "Thu"
+            case 4: return "Fri"
+            case 5: return "Sat"
+            default: return "Sun"
+            }
+        }
+        uiElements.pushUpDisplayViewLabel1.text = upperText
+        
+        var dateComps = Calendar.current.dateComponents([.year, .weekOfYear, .weekday], from: Date())
+        
+        var dayCompIndex: Int {
+            switch index {
+            case 0: return 2 //Mon
+            case 1: return 3 //Tue
+            case 2: return 4 //Wed
+            case 3: return 5 //Thu
+            case 4: return 6 //Fri
+            case 5: return 7 //Sat
+            case 6: return 1 //Sun
+            default: return 1
+            }
+        }
+        
+        dateComps.weekday = dayCompIndex
+        guard let targetDate = Calendar.current.date(from: dateComps) else { return }
+        let targetDayWorkouts = coreData.fetchSingleDayWorkouts(for: targetDate)
+        let pushUpsForTargetDate = targetDayWorkouts.reduce(0) { $0 + $1.reps }
+        
+        uiElements.pushUpDisplayViewLabel2.text = "\(pushUpsForTargetDate)"
+        
+
+    }
+    
+    @objc private func backgroundTapped() {
+        print("Background tapped")
+        uiElements.pushUpDisplayView.isHidden = true
+    }
+
+
 
 
 }
@@ -96,21 +172,61 @@ extension OverviewVC {
         let totalPushUpsForThisWeek = useTestData ? C.testDataForThisWeek.reduce(0, +) : calManager.pushUpsForWeek(weekOffset: 0).total
         uiElements.subheaderCounter1.text = "\(totalPushUpsForThisWeek)"
         
-        let avgPushUps = totalPushUpsForThisWeek / 7
-        uiElements.footerCounter.text = "\(avgPushUps)"
-        
         let totalPushUpsForLastWeek = useTestData ? C.testDataForPreviousWeek.reduce(0, +) : calManager.pushUpsForWeek(weekOffset: -1).total
         
-        let avgPushUpsLastWeek = totalPushUpsForLastWeek / 7
+        let totalPushUps = calManager.totalPushUps()
+        uiElements.subheaderCounter2.text = "\(totalPushUps)"
         
+        
+        let avgPushUpsLastWeek = Double(totalPushUpsForLastWeek) / 7.0
+        let avgPushUpsLastWeekRounded = Int(avgPushUpsLastWeek.rounded())
+        
+        let avgPushUps = Double(totalPushUpsForThisWeek) / 7.0
+        let avgPushUpsRounded = Int(avgPushUps.rounded())
+        uiElements.footerCounter.text = "\(avgPushUpsRounded)"
+        
+        //Calculate total percentage difference
+        if totalPushUpsForLastWeek != 0 && totalPushUpsForLastWeek != 0 {
+            uiElements.subheaderCounter3.isHidden = false
+            let diff = totalPushUpsForThisWeek - totalPushUpsForLastWeek
+            let p = (Double(diff) / Double(totalPushUpsForLastWeek)) * 100.0
+            let rp = Int(p.rounded())
+            
+            if diff > 0 {
+                uiElements.subheaderCounter3.textColor = .green
+                uiElements.subheaderCounter3.text = "+\(rp)%"
+            } else {
+                uiElements.subheaderCounter3.textColor = .red
+                uiElements.subheaderCounter3.text = "-\(rp)%"
+            }
+        } else {
+            uiElements.subheaderCounter3.isHidden = true
+        }
+        
+        //Calculate avg difference
+        if avgPushUpsLastWeek != 0 && avgPushUps != 0 {
+            uiElements.footerPercentageCounter.isHidden = false
+            let diff = avgPushUpsRounded - avgPushUpsLastWeekRounded
+            let p = (Double(diff) / Double(avgPushUpsLastWeekRounded)) * 100.0
+            let rp = Int(p.rounded())
+
+            if diff > 0 {
+                uiElements.footerPercentageCounter.textColor = .green
+                uiElements.footerPercentageCounter.text = "+\(rp)%"
+            } else {
+                uiElements.footerPercentageCounter.textColor = .red
+                uiElements.footerPercentageCounter.text = "-\(rp)%"
+            }
+        } else {
+            uiElements.footerPercentageCounter.isHidden = true
+        }
+        
+        /*
         print("Total push ups for this week: \(totalPushUpsForThisWeek)")
-        print("Average push ups for this week: \(avgPushUps)")
+        print("Average push ups for this week: \(avgPushUps), rounded: \(avgPushUpsRounded)")
         print("Total push ups for last week: \(totalPushUpsForLastWeek)")
-        print("Average push ups for last week: \(avgPushUpsLastWeek)")
-        
-        
-        
-        
+        print("Average push ups for last week: \(avgPushUpsLastWeek), rounded: \(avgPushUpsLastWeekRounded)")
+        */
         
     }
     
@@ -128,6 +244,7 @@ extension OverviewVC {
         setSubheaderView(containerFrame: uiElements.backGroundView.frame, margin: margin)
         setPushUpChartView(containerFrame: uiElements.backGroundView.frame, margin: margin)
         setFooterView(containerFrame: uiElements.backGroundView.frame, margin: margin)
+        setPushUpWeekdayContainer()
         
     }
     
@@ -137,6 +254,15 @@ extension OverviewVC {
         backGroundView.frame = CGRect(x: 0.0, y: safeArea.top, width: containerFrame.width, height: containerFrame.height - safeArea.top - safeArea.bottom)
         view.addSubview(backGroundView)
         uiElements.backGroundView = backGroundView
+        
+        let backgroundTap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(backgroundTapped)
+        )
+        backgroundTap.cancelsTouchesInView = false // 👈 important
+        backGroundView.addGestureRecognizer(backgroundTap)
+
+        
     }
     private func setHeader(containerFrame: CGRect, margin: CGFloat) {
         
@@ -250,15 +376,34 @@ extension OverviewVC {
         
         var columns: [UIView] = []
         
-        for _ in 0..<7 {
+        for index in 0..<7 {
             let columnView = UIView()
             columnView.backgroundColor = .white
-            columnView.frame = CGRect(x: xOffset, y: 0.0, width: columnWidth, height: chartContainer.frame.height)
-            chartContainer.addSubview(columnView)
-            xOffset += columnWidth + 2.0
+            columnView.frame = CGRect(
+                x: xOffset,
+                y: 0.0,
+                width: columnWidth,
+                height: chartContainer.frame.height
+            )
             columnView.layer.cornerRadius = 8.0
+            columnView.isUserInteractionEnabled = true
+
+            // Tag identifies the column
+            columnView.tag = index
+
+            // Tap gesture
+            let tapGesture = UITapGestureRecognizer(
+                target: self,
+                action: #selector(columnTapped(_:))
+            )
+            columnView.addGestureRecognizer(tapGesture)
+
+            chartContainer.addSubview(columnView)
             columns.append(columnView)
+
+            xOffset += columnWidth + 2.0
         }
+
         
         uiElements.pushUpColumns = columns
         
@@ -313,6 +458,33 @@ extension OverviewVC {
         uiElements.footerView = footerView
         
     }
+    private func setPushUpWeekdayContainer() {
+        
+        let container = UIView()
+        container.backgroundColor = UIColor(named: C.colors.gray2)
+        container.layer.cornerRadius = 10.0
+        
+        let weekdaylabel = UILabel()
+        builder.styleLabel(header: weekdaylabel, text: "Mon", fontSize: 15.0, textColor: .white, alignment: .center)
+        weekdaylabel.textAlignment = .center
+        weekdaylabel.frame = CGRect(x: 5, y: 5, width: 70, height: 20)
+        container.addSubview(weekdaylabel)
+        uiElements.pushUpDisplayViewLabel1 = weekdaylabel
+        
+        let pushUpLabel = UILabel()
+        builder.styleLabel(header: pushUpLabel, text: "123", fontSize: 15.0, textColor: .white, alignment: .center)
+        pushUpLabel.textAlignment = .center
+        pushUpLabel.frame = CGRect(x: 5, y: 25, width: 70, height: 20)
+        container.addSubview(pushUpLabel)
+        uiElements.pushUpDisplayViewLabel2 = pushUpLabel
+        
+        container.frame = CGRect(x: 100, y: 100, width: 80, height: 50)
+        uiElements.pushUpColumnsContainer.addSubview(container)
+        //uiElements.pushUpColumnsContainer.backgroundColor = .red
+        uiElements.pushUpDisplayView = container
+        uiElements.pushUpDisplayView.isHidden = true
+        
+    }
     
 }
 
@@ -336,6 +508,10 @@ struct OverviewUIElements {
     var footerCounter: UILabel!
     var footerTextLabel: UILabel!
     var footerPercentageCounter: UILabel!
+    
+    var pushUpDisplayView: UIView!
+    var pushUpDisplayViewLabel1: UILabel!
+    var pushUpDisplayViewLabel2: UILabel!
     
     
 }
