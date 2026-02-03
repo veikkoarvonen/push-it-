@@ -102,7 +102,6 @@ class PushUpsVC: UIViewController {
         print("Finishing camera session, User completed \(pushUpDetector.count) push ups")
         
         cameraManager.stopPreview()
-        pushUpDetector.reset()
         cameraIsActive = false
         updateUIState(cameraIsActive: cameraIsActive)
         
@@ -112,9 +111,12 @@ class PushUpsVC: UIViewController {
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
             updateScreentimeValue(completedPushUps: pushUpDetector.count)
             if withAlert { displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: pushUpDetector.count) }
+            pushUpDetector.reset()
             Task {
                 await scheduleNotifications()
             }
+        } else {
+            pushUpDetector.reset()
         }
     }
 
