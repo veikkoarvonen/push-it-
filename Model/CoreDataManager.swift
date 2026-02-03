@@ -85,6 +85,25 @@ final class CoreDataManager {
         }
     }
     
+    // MARK: - Delete
+    func deleteAllWorkouts() {
+
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Workout.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        do {
+            try context.execute(deleteRequest)
+            try context.save()
+            print("All workouts deleted")
+        } catch {
+            print("Failed to delete workouts:", error)
+        }
+    }
+
+    
     
     
 }

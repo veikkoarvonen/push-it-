@@ -21,9 +21,9 @@ class OverviewVC: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        calManager.resetScreentime()
+        //calManager.resetScreentime()
         //coreData.createWorkout(reps: Int16(16), date: Date())
-        //coreData.logAllWorkouts()
+        //coreData.deleteAllWorkouts()
         //print(calManager.pushUpsForWeek(weekOffset: 0))
     }
     
