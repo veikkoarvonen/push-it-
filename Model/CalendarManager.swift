@@ -67,4 +67,8 @@ final class CalendarManager {
         return Int(totalPushups)
     }
     
+    func resetScreentime() {
+        UserDefaults.standard.set(Date(), forKey: C.userDefaultValues.screentimeEnd)
+    }
+    
 }

@@ -12,8 +12,10 @@ class ScreentimeVC: UIViewController {
     var hasSetUI: Bool = false
     let builder = UIBuilder()
     var uiElements = ScreentimeUIElements()
+    var timer: Timer?
    
-
+//MARK: VC Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -25,8 +27,22 @@ class ScreentimeVC: UIViewController {
         hasSetUI = true
         setUI()
         reloadSliderValues()
-        
+        initializeTimer()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("Screentime view will appear")
+        initializeTimer()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("Screentime view will disappear")
+        terminateTimer()
+    }
+    
+//MARK: - Objc functions
     
     @objc private func handleAppTap() {
         print("Choosing apps to block")
@@ -70,7 +86,57 @@ class ScreentimeVC: UIViewController {
             UserDefaults.standard.set(20, forKey: C.userDefaultValues.minutes)
         }
         
+        
+        
     }
+    
+//MARK: - Timer logic
+    
+    private func terminateTimer() {
+        guard timer != nil else { return }
+        print("Terminating timer")
+        timer!.invalidate()
+        timer = nil
+    }
+    
+    private func initializeTimer() {
+        guard timer == nil && hasSetUI else { return }
+        print("Initializing timer")
+        timer?.invalidate()
+        
+        updateScreentimeLabel()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updateScreentimeLabel()
+            print("Timer fired")
+        }
+    }
+    
+    private func updateScreentimeLabel() {
+        let screentimeEndMoment = UserDefaults.standard.value(forKey: C.userDefaultValues.screentimeEnd) as? Date ?? Date()
+        let now = Date()
+        
+        let remainingSeconds = max(0, Int(screentimeEndMoment.timeIntervalSince(now)))
+        uiElements.remainingScreenTimeLabel.text = format(seconds: remainingSeconds)
+        
+        if remainingSeconds <= 0 {
+            terminateTimer()
+        }
+    }
+    
+    private func format(seconds: Int) -> String {
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        let s = seconds % 60
+
+        if h > 0 {
+            return String(format: "%d:%02d:%02d", h, m, s)
+        } else {
+            return String(format: "%02d:%02d", m, s)
+        }
+    }
+
+    
+   
 
 }
 

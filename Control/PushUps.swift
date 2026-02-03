@@ -27,6 +27,7 @@ class PushUpsVC: UIViewController {
     private var requiredPushUps: Int = 20 //Default value
     
     let coreData = CoreDataManager()
+    let notifications = NotificationManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,7 +50,8 @@ class PushUpsVC: UIViewController {
             
             let targetDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
             
-            coreData.createWorkout(reps: 100, date: targetDate)
+            coreData.createWorkout(reps: 50, date: targetDate)
+            updateScreentimeValue(completedPushUps: 50)
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
             return
@@ -108,11 +110,48 @@ class PushUpsVC: UIViewController {
             coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date())
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
             UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
+            updateScreentimeValue(completedPushUps: pushUpDetector.count)
             if withAlert { displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: pushUpDetector.count) }
+            Task {
+                await scheduleNotifications()
+            }
         }
     }
 
 
+}
+
+//MARK: - Screentime
+
+extension PushUpsVC {
+    
+    private func updateScreentimeValue(completedPushUps: Int) {
+        
+        let savedPushUpValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int ?? 20
+        
+        let savedMinutesValue = UserDefaults.standard.value(forKey: C.userDefaultValues.minutes) as? Int ?? 20
+        
+        let pushUpPercentage = Double(completedPushUps) / Double(savedPushUpValue)
+        let earnedMinutes = pushUpPercentage * Double(savedMinutesValue)
+        let roundedMinutes = Int(earnedMinutes.rounded())
+        
+        let earnedTimeInSeconds = roundedMinutes * 60
+        
+        let currentScreentimeEndMoment = UserDefaults.standard.value(forKey: C.userDefaultValues.screentimeEnd) as? Date ?? Date()
+        
+        let newScreentimeEndMoment = Calendar.current.date(byAdding: .second, value: earnedTimeInSeconds, to: currentScreentimeEndMoment)!
+        
+        UserDefaults.standard.set(newScreentimeEndMoment, forKey: C.userDefaultValues.screentimeEnd)
+        
+    }
+    
+    private func scheduleNotifications() async {
+        let allowed = await notifications.notificationsAllowed()
+        guard allowed else { return }
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        notifications.scheduleScreentimeEndNotification()
+    }
+    
 }
 
 //MARK: - Camera & Push up logic
@@ -141,7 +180,8 @@ extension PushUpsVC {
         let earnedMinutes = pushUpPercentage * Double(savedMinutesValue)
         let roundedMinutes = Int(earnedMinutes.rounded())
         
-        print("Saved push up value is \(savedPushUpValue). Saved minutes value is \(savedMinutesValue). Push up percentage is \(pushUpPercentage) since user completed \(completedPushUps) push ups. This grants user \(earnedMinutes) minutes of screentime which is \(roundedMinutes) when rounded")
+        
+        //print("Saved push up value is \(savedPushUpValue). Saved minutes value is \(savedMinutesValue). Push up percentage is \(pushUpPercentage) since user completed \(completedPushUps) push ups. This grants user \(earnedMinutes) minutes of screentime which is \(roundedMinutes) when rounded")
         
         
         let fullMessage = "You compeleted \(completedPushUps) push ups! This earns you \(roundedMinutes) minutes of screentime."

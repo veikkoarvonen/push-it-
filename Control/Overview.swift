@@ -21,7 +21,7 @@ class OverviewVC: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        
+        calManager.resetScreentime()
         //coreData.createWorkout(reps: Int16(16), date: Date())
         //coreData.logAllWorkouts()
         //print(calManager.pushUpsForWeek(weekOffset: 0))
@@ -106,6 +106,7 @@ class OverviewVC: UIViewController {
     @objc private func backgroundTapped() {
         print("Background tapped")
         uiElements.pushUpDisplayView.isHidden = true
+        //NotificationManager.shared.scheduleTestNotification(after: 5.0)
     }
 
 
@@ -197,7 +198,7 @@ extension OverviewVC {
                 uiElements.subheaderCounter3.text = "+\(rp)%"
             } else {
                 uiElements.subheaderCounter3.textColor = .red
-                uiElements.subheaderCounter3.text = "-\(rp)%"
+                uiElements.subheaderCounter3.text = "\(rp)%"
             }
         } else {
             uiElements.subheaderCounter3.isHidden = true
@@ -215,7 +216,7 @@ extension OverviewVC {
                 uiElements.footerPercentageCounter.text = "+\(rp)%"
             } else {
                 uiElements.footerPercentageCounter.textColor = .red
-                uiElements.footerPercentageCounter.text = "-\(rp)%"
+                uiElements.footerPercentageCounter.text = "\(rp)%"
             }
         } else {
             uiElements.footerPercentageCounter.isHidden = true
