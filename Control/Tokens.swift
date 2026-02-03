@@ -6,17 +6,20 @@
 //
 
 import UIKit
+import SceneKit
 
 class TokensVC: UIViewController {
     
     var hasSetUI: Bool = false
     var tokenContainerViews: [UIView] = []
+    var sceneContainer: SCNView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setUI()
         reloadTokenViews()
+        setScene()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -52,6 +55,51 @@ class TokensVC: UIViewController {
 }
 
 extension TokensVC {
+    
+    private func setScene() {
+        // 1: Load .obj file
+               let scene = SCNScene(named: "doubloon.obj")
+               
+               // 2: Add camera node
+               let cameraNode = SCNNode()
+               cameraNode.camera = SCNCamera()
+               // 3: Place camera
+               cameraNode.position = SCNVector3(x: 0, y: 10, z: 35)
+               // 4: Set camera on scene
+               scene?.rootNode.addChildNode(cameraNode)
+               
+               // 5: Adding light to scene
+               let lightNode = SCNNode()
+               lightNode.light = SCNLight()
+               lightNode.light?.type = .omni
+               lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
+               scene?.rootNode.addChildNode(lightNode)
+               
+               // 6: Creating and adding ambien light to scene
+               let ambientLightNode = SCNNode()
+               ambientLightNode.light = SCNLight()
+               ambientLightNode.light?.type = .ambient
+               ambientLightNode.light?.color = UIColor.darkGray
+               scene?.rootNode.addChildNode(ambientLightNode)
+               
+               // If you don't want to fix manually the lights
+       //        sceneView.autoenablesDefaultLighting = true
+               
+               // Allow user to manipulate camera
+        sceneContainer.allowsCameraControl = true
+               
+               // Show FPS logs and timming
+               // sceneView.showsStatistics = true
+               
+               // Set background color
+        sceneContainer.backgroundColor = UIColor.black
+               
+               // Allow user translate image
+        sceneContainer.cameraControlConfiguration.allowsTranslation = false
+               
+               // Set scene settings
+        sceneContainer.scene = scene
+    }
     
     private func setUI() {
         
@@ -183,7 +231,13 @@ extension TokensVC {
         tokenContainerViews = tokenViews
 
 
-
+        let sceneView = SCNView()
+        
+        bgView.addSubview(sceneView)
+        
+        sceneContainer = sceneView
+        
+        sceneView.frame = CGRect(x: 0.0, y: 30.0, width: view.frame.width, height: 500.0)
         
         
     }

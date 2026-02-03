@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B605F70B2F32650500CB913E /* doubloon.obj in Resources */ = {isa = PBXBuildFile; fileRef = B605F70A2F32650500CB913E /* doubloon.obj */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		B605F70A2F32650500CB913E /* doubloon.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = doubloon.obj; sourceTree = "<group>"; };
 		B685DBE82F1D77280024C57B /* Push It!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Push It!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -65,6 +70,7 @@
 				B685DBEA2F1D77280024C57B /* Push It! */,
 				B685DBE92F1D77280024C57B /* Products */,
 				B685DC102F1E47940024C57B /* Fonts */,
+				B605F70A2F32650500CB913E /* doubloon.obj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,6 +149,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B605F70B2F32650500CB913E /* doubloon.obj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
