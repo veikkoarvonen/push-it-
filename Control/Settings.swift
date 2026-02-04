@@ -19,12 +19,12 @@ class SettingsVC: UIViewController {
     }
     
     @objc private func openPrivacyPolicy() {
-        guard let url = URL(string: "https://yourdomain.com/privacy-policy") else { return }
+        guard let url = URL(string: "https://www.liikax.fi/privacypolicyapp") else { return }
         UIApplication.shared.open(url)
     }
 
     @objc private func openTermsOfUse() {
-        guard let url = URL(string: "https://yourdomain.com/terms-of-use") else { return }
+        guard let url = URL(string: "https://www.liikax.fi/termsofuseapp") else { return }
         UIApplication.shared.open(url)
     }
 
