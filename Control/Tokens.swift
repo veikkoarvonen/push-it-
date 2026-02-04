@@ -209,7 +209,7 @@ extension TokensVC {
 
             for _ in 0..<columns {
                 let tokenView = UIView()
-                tokenView.backgroundColor = UIColor(named: C.colors.gray2)
+                tokenView.backgroundColor = .black
                 tokenView.layer.cornerRadius = 10
                 tokenView.clipsToBounds = true
                 
