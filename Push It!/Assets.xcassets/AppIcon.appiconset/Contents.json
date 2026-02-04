@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Push-it-icon.jpg",
+      "filename" : "appIcon2-2.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Push-it-icon 2.jpg",
+      "filename" : "appIcon2-2 1.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Push-it-icon 1.jpg",
+      "filename" : "appIcon2-2 2.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
