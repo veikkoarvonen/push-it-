@@ -19,7 +19,7 @@ class TokensVC: UIViewController {
         // Do any additional setup after loading the view.
         setUI()
         reloadTokenViews()
-        setScene()
+        //setScene()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -108,8 +108,19 @@ extension TokensVC {
         
         let builder = UIBuilder()
         
+        let bgImage = UIImageView(image: UIImage(named: C.bgView))
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bgImage)
+        
+        NSLayoutConstraint.activate([
+            bgImage.topAnchor.constraint(equalTo: view.topAnchor),
+            bgImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bgImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bgImage.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
         let bgView = UIView()
-        bgView.backgroundColor = UIColor(named: C.colors.gray1)
+        bgView.backgroundColor = .clear
         bgView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bgView)
         NSLayoutConstraint.activate([
@@ -142,7 +153,7 @@ extension TokensVC {
         ])
         
         let decorationView = UIView()
-        decorationView.backgroundColor = UIColor(named: C.colors.orange1)
+        decorationView.backgroundColor = .black
         decorationView.translatesAutoresizingMaskIntoConstraints = false
         headerContainer.addSubview(decorationView)
         NSLayoutConstraint.activate([
@@ -230,7 +241,7 @@ extension TokensVC {
         
         tokenContainerViews = tokenViews
 
-
+/*
         let sceneView = SCNView()
         
         bgView.addSubview(sceneView)
@@ -238,7 +249,7 @@ extension TokensVC {
         sceneContainer = sceneView
         
         sceneView.frame = CGRect(x: 0.0, y: 30.0, width: view.frame.width, height: 500.0)
-        
+*/
         
     }
     

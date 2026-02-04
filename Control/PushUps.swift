@@ -207,6 +207,20 @@ extension PushUpsVC {
 extension PushUpsVC {
     
     private func prepareUI() {
+        
+        let bgImage = UIImageView(image: UIImage(named: C.bgView))
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(bgImage, at: 0)
+
+        
+        NSLayoutConstraint.activate([
+            bgImage.topAnchor.constraint(equalTo: view.topAnchor),
+            bgImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bgImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bgImage.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        
         let camTap = UITapGestureRecognizer(target: self, action: #selector(handleCamTap))
         cameraIconView.addGestureRecognizer(camTap)
         cameraIconView.isUserInteractionEnabled = true

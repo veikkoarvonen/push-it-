@@ -38,7 +38,7 @@ struct C {
     
     static let tokenLimits: [Int] = [50, 100, 200, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000]
     
-    
+    static let bgView = "pushUpbackGround"
 
     
 }

@@ -51,14 +51,14 @@ class ScreentimeVC: UIViewController {
     @objc private func pushUpSliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(sender.value.rounded())
         sender.value = Float(roundedValue) // snap slider to whole numbers
-        uiElements.pushUpLabel.text = "\(roundedValue)"
+        uiElements.pushUpLabel.text = "\(roundedValue) push ups"
         UserDefaults.standard.set(roundedValue, forKey: C.userDefaultValues.pushUps)
     }
     
     @objc private func minuteSliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(sender.value.rounded())
         sender.value = Float(roundedValue) // snap slider to whole numbers
-        uiElements.minuteLabel.text = "\(roundedValue)"
+        uiElements.minuteLabel.text = "\(roundedValue) min"
         UserDefaults.standard.set(roundedValue, forKey: C.userDefaultValues.minutes)
     }
     
@@ -68,21 +68,21 @@ class ScreentimeVC: UIViewController {
         
         if let savedPushUpsValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int {
             uiElements.pushUpSlider.value = Float(savedPushUpsValue)
-            uiElements.pushUpLabel.text = "\(savedPushUpsValue)"
+            uiElements.pushUpLabel.text = "\(savedPushUpsValue) push ups"
         } else {
             print("No push ups saved in user defaults, setting default value")
             uiElements.pushUpSlider.value = 20
-            uiElements.pushUpLabel.text = "20"
+            uiElements.pushUpLabel.text = "20 push ups"
             UserDefaults.standard.set(20, forKey: C.userDefaultValues.pushUps)
         }
         
         if let savedMinutesValue = UserDefaults.standard.value(forKey: C.userDefaultValues.minutes) as? Int {
             uiElements.minuteSlider.value = Float(savedMinutesValue)
-            uiElements.minuteLabel.text = "\(savedMinutesValue)"
+            uiElements.minuteLabel.text = "\(savedMinutesValue) min"
         } else {
             print("No minutes saved in user defaults, setting default value")
             uiElements.minuteSlider.value = 20
-            uiElements.minuteLabel.text = "20"
+            uiElements.minuteLabel.text = "20 min"
             UserDefaults.standard.set(20, forKey: C.userDefaultValues.minutes)
         }
         
@@ -149,19 +149,32 @@ extension ScreentimeVC {
    
     
     private func setUI() {
+        setBackGroundImage()
         setContainerViews(containerFrame: view.frame, safeArea: view.safeAreaInsets)
         setHeaderViewlElements()
-        setSubheader()
+        //setSubheader()
         setReamainingScreentimeContainer()
         setBlockAppsLabel()
         setPushUpCountElements()
         setMinuteCountElements()
     }
     
+    private func setBackGroundImage() {
+        let bgImage = UIImageView(image: UIImage(named: C.bgView))
+        view.addSubview(bgImage)
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bgImage.topAnchor.constraint(equalTo: view.topAnchor),
+            bgImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bgImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bgImage.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
     private func setContainerViews(containerFrame: CGRect, safeArea: UIEdgeInsets) {
         
         let backGroundView = UIView()
-        backGroundView.backgroundColor = UIColor(named: C.colors.gray1)
+        backGroundView.backgroundColor = .clear
         backGroundView.frame = CGRect(x: 0.0, y: safeArea.top, width: containerFrame.width, height: containerFrame.height - safeArea.top - safeArea.bottom)
         view.addSubview(backGroundView)
         uiElements.backGroundView = backGroundView
@@ -172,15 +185,10 @@ extension ScreentimeVC {
         uiElements.headerView = headerView
             uiElements.backGroundView.addSubview(headerView)
         
-        let subheaderView = UIView()
-        subheaderView.backgroundColor = C.testUIwithBackgroundColor ? .orange : .clear
-        subheaderView.frame = CGRect(x: 0.0, y: uiElements.headerView.frame.maxY, width: containerFrame.width, height: 60.0)
-            uiElements.backGroundView.addSubview(subheaderView)
-        uiElements.subHeaderView = subheaderView
         
         let remainingScreentimeContainer = UIView()
         remainingScreentimeContainer.backgroundColor = C.testUIwithBackgroundColor ? .yellow : .clear
-        remainingScreentimeContainer.frame = CGRect(x: 0.0, y: uiElements.subHeaderView.frame.maxY, width: containerFrame.width, height: containerFrame.width * (3 / 5))
+        remainingScreentimeContainer.frame = CGRect(x: 0.0, y: uiElements.headerView.frame.maxY + 20.0, width: containerFrame.width, height: containerFrame.width * (3 / 5))
         uiElements.backGroundView.addSubview(remainingScreentimeContainer)
         uiElements.remainingScreentimeContainer = remainingScreentimeContainer
         
@@ -216,7 +224,7 @@ extension ScreentimeVC {
         let margin: CGFloat = 30.0
         
         let decorationView = UIView()
-        decorationView.backgroundColor = UIColor(named: C.colors.orange1)
+        decorationView.backgroundColor = .black
         decorationView.frame = CGRect(x: margin, y: margin + headerHeigth - decorationOffset, width: 200.0, height: decorationHeigth)
         uiElements.headerView.addSubview(decorationView)
         
@@ -227,18 +235,7 @@ extension ScreentimeVC {
         uiElements.headerView.addSubview(header)
         
     }
-    private func setSubheader() {
-        
-        let subheader = UILabel()
-        subheader.numberOfLines = 0
-        builder.styleLabel(header: subheader, text: "Adjust the amount of push ups to unlock screen time", fontSize: 15.0, textColor: .white, alignment: .left)
-        let containerHeight: CGFloat = uiElements.subHeaderView.frame.height
-        let marginX: CGFloat = 30.0
-        subheader.backgroundColor = C.testUIwithBackgroundColor ? .green.withAlphaComponent(0.8) : .clear
-        subheader.frame = CGRect(x: marginX, y: 0.0, width: uiElements.headerView.frame.width - marginX * 2 - 100.0, height: containerHeight)
-        uiElements.subHeaderView.addSubview(subheader)
-        
-    }
+   
     private func setReamainingScreentimeContainer() {
         
         let parentContainerHeigth: CGFloat = uiElements.remainingScreentimeContainer.frame.height
@@ -246,7 +243,7 @@ extension ScreentimeVC {
         let marginY: CGFloat = 10.0
         
         let container = UIView()
-        container.backgroundColor = UIColor(named: C.colors.gray2)
+        container.backgroundColor = .black
         container.layer.cornerRadius = 15.0
         let containerWidth: CGFloat = uiElements.remainingScreentimeContainer.frame.width - marginX * 2
         let containerHeigth: CGFloat = parentContainerHeigth - marginY * 2
@@ -323,18 +320,18 @@ extension ScreentimeVC {
         uiElements.pushUpSlider = pushUpSlider
         
         let upperLabel = UILabel()
-        builder.styleLabel(header: upperLabel, text: "50", fontSize: 20.0, textColor: .white, alignment: .center)
+        builder.styleLabel(header: upperLabel, text: "50 push ups", fontSize: 25.0, textColor: .white, alignment: .center)
         upperLabel.textAlignment = .center
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        upperLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
+        upperLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.minY - labelHeight - 10.0, width: containerFrame.width - marginX * 2, height: labelHeight + 10.0)
         uiElements.pushUpCountContainer.addSubview(upperLabel)
         uiElements.pushUpLabel = upperLabel
         
         let lowerLabel = UILabel()
-        builder.styleLabel(header: lowerLabel, text: "push ups give you", fontSize: 20.0, textColor: .white, alignment: .center)
+        builder.styleLabel(header: lowerLabel, text: "gives you", fontSize: 20.0, textColor: .white, alignment: .center)
         lowerLabel.textAlignment = .center
         lowerLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        lowerLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.maxY, width: containerFrame.width - marginX * 2, height: labelHeight)
+        lowerLabel.frame = CGRect(x: marginX, y: pushUpSlider.frame.maxY + 5.0, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.pushUpCountContainer.addSubview(lowerLabel)
         
     }
@@ -357,18 +354,18 @@ extension ScreentimeVC {
         uiElements.minuteSlider = minuteSlider
         
         let upperLabel = UILabel()
-        builder.styleLabel(header: upperLabel, text: "50", fontSize: 20.0, textColor: .white, alignment: .center)
+        builder.styleLabel(header: upperLabel, text: "50 min", fontSize: 25.0, textColor: .white, alignment: .center)
         upperLabel.textAlignment = .center
         upperLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        upperLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.minY - labelHeight, width: containerFrame.width - marginX * 2, height: labelHeight)
+        upperLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.minY - labelHeight - 10.0, width: containerFrame.width - marginX * 2, height: labelHeight + 10.0)
         uiElements.minuteCountContainer.addSubview(upperLabel)
         uiElements.minuteLabel = upperLabel
         
         let lowerLabel = UILabel()
-        builder.styleLabel(header: lowerLabel, text: "minutes of screentime", fontSize: 20.0, textColor: .white, alignment: .center)
+        builder.styleLabel(header: lowerLabel, text: "of screentime", fontSize: 20.0, textColor: .white, alignment: .center)
         lowerLabel.textAlignment = .center
         lowerLabel.backgroundColor = C.testUIwithBackgroundColor ? .red : .clear
-        lowerLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.maxY, width: containerFrame.width - marginX * 2, height: labelHeight)
+        lowerLabel.frame = CGRect(x: marginX, y: minuteSlider.frame.maxY + 5.0, width: containerFrame.width - marginX * 2, height: labelHeight)
         uiElements.minuteCountContainer.addSubview(lowerLabel)
         
     }
@@ -379,7 +376,6 @@ struct ScreentimeUIElements {
     
     var backGroundView: UIView!
     var headerView: UIView!
-    var subHeaderView: UIView!
     var remainingScreentimeContainer: UIView!
     var remainingScreenTimeLabel: UILabel!
     var blockAppsButtonView: UIView!

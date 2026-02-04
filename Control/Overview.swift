@@ -250,8 +250,14 @@ extension OverviewVC {
     }
     
     private func setBackgroundView(containerFrame: CGRect, safeArea: UIEdgeInsets) {
+        
+        let bgView = UIImageView()
+        bgView.image = UIImage(named: C.bgView)
+        bgView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        view.addSubview(bgView)
+        
         let backGroundView = UIView()
-        backGroundView.backgroundColor = UIColor(named: C.colors.gray1)
+        backGroundView.backgroundColor = .clear
         backGroundView.frame = CGRect(x: 0.0, y: safeArea.top, width: containerFrame.width, height: containerFrame.height - safeArea.top - safeArea.bottom)
         view.addSubview(backGroundView)
         uiElements.backGroundView = backGroundView
@@ -279,7 +285,7 @@ extension OverviewVC {
         uiElements.backGroundView.addSubview(headerView)
         
         let decorationView = UIView()
-        decorationView.backgroundColor = UIColor(named: C.colors.orange1)
+        decorationView.backgroundColor = .black
         decorationView.frame = CGRect(x: margin, y: margin + headerHeigth - decorationOffset, width: 200.0, height: decorationHeigth)
         headerView.addSubview(decorationView)
         
@@ -364,7 +370,7 @@ extension OverviewVC {
         
         for _ in 0...5 {
             let lineView = UIView()
-            lineView.backgroundColor = C.testUIwithBackgroundColor ? .green : UIColor(named: C.colors.gray2)
+            lineView.backgroundColor = C.testUIwithBackgroundColor ? .green : .white.withAlphaComponent(0.8)
             lineView.frame = CGRect(x: 0.0, y: yOffset, width: chartContainer.frame.width, height: 1.0)
             chartContainer.addSubview(lineView)
             yOffset += yInterval
@@ -421,7 +427,7 @@ extension OverviewVC {
         let containerHeigth: CGFloat = padding * 2.0 + middlePadding + counterHeigth + labelHeight
         
         let footerView = UIView()
-        footerView.backgroundColor = UIColor(named: C.colors.gray2)
+        footerView.backgroundColor = .black
         footerView.layer.cornerRadius = 15.0
         footerView.frame = CGRect(x: margin, y: uiElements.pushUpColumnsView.frame.maxY + marginY, width: containerFrame.width - margin * 2.0, height: containerHeigth)
         uiElements.backGroundView.addSubview(footerView)
@@ -462,7 +468,7 @@ extension OverviewVC {
     private func setPushUpWeekdayContainer() {
         
         let container = UIView()
-        container.backgroundColor = UIColor(named: C.colors.gray2)
+        container.backgroundColor = .black
         container.layer.cornerRadius = 10.0
         
         let weekdaylabel = UILabel()
