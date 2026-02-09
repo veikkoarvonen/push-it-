@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FamilyControls
 
 class ScreentimeVC: UIViewController {
     
@@ -13,6 +14,8 @@ class ScreentimeVC: UIViewController {
     let builder = UIBuilder()
     var uiElements = ScreentimeUIElements()
     var timer: Timer?
+    
+    private var appSelection = FamilyActivitySelection()
    
 //MARK: VC Lifecycle
     
@@ -45,7 +48,30 @@ class ScreentimeVC: UIViewController {
 //MARK: - Objc functions
     
     @objc private func handleAppTap() {
-        print("Choosing apps to block")
+     
+        let controls = FamilyControlsManager()
+        
+        Task { [weak self] in
+                guard let self else { return }
+
+                do {
+                    // Only request if needed (prevents unnecessary prompts)
+                    let status = controls.status()
+                    if status != .approved {
+                        try await controls.request()
+                    }
+
+                    await MainActor.run {
+                        //This code runs when the authorization is granted by user for screentime
+                        print("Authorization OK")
+                    }
+
+                } catch {
+                    print("Screen Time authorization failed:", error)
+                    // Optional: show an alert telling user to enable in Settings
+                }
+            }
+      
     }
     
     @objc private func pushUpSliderValueChanged(_ sender: UISlider) {

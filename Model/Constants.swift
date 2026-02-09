@@ -34,7 +34,7 @@ struct C {
     static let testUIwithBackgroundColor: Bool = false
     static let testDataForThisWeek: [Int] = [14, 56, 35, 46, 31, 45, 23]
     static let testDataForPreviousWeek: [Int] = [12, 23, 66, 21, 34, 56, 12]
-    static let testPushUpCreationWithoutCamera: Bool = false
+    static let testPushUpCreationWithoutCamera: Bool = true
     
     static let tokenLimits: [Int] = [50, 100, 200, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000]
     

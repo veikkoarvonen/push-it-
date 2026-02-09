@@ -46,14 +46,7 @@ class PushUpsVC: UIViewController {
         
         if C.testPushUpCreationWithoutCamera {
             print("Testing push up creation without camera, not starting camera session")
-            displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: 50)
-            
-            let targetDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-            
-            coreData.createWorkout(reps: 50, date: targetDate)
-            updateScreentimeValue(completedPushUps: 50)
-            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
-            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
+            logWorkout(completedPushUps: 5)
             return
         }
         
@@ -106,18 +99,19 @@ class PushUpsVC: UIViewController {
         updateUIState(cameraIsActive: cameraIsActive)
         
         if pushUpDetector.count > 0 {
-            coreData.createWorkout(reps: Int16(pushUpDetector.count), date: Date())
-            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
-            UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
-            updateScreentimeValue(completedPushUps: pushUpDetector.count)
-            if withAlert { displayPushUpCompletionAlert(title: "Congratulations!", completedPushUps: pushUpDetector.count) }
-            pushUpDetector.reset()
+            logWorkout(completedPushUps: pushUpDetector.count)
             Task {
                 await scheduleNotifications()
             }
-        } else {
-            pushUpDetector.reset()
         }
+        pushUpDetector.reset()
+    }
+    
+    private func logWorkout(completedPushUps: Int) {
+        coreData.createWorkout(reps: Int16(completedPushUps), date: Date())
+        UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
+        UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
+        updateScreentimeValue(completedPushUps: completedPushUps)
     }
 
 
@@ -128,24 +122,44 @@ class PushUpsVC: UIViewController {
 extension PushUpsVC {
     
     private func updateScreentimeValue(completedPushUps: Int) {
-        
-        let savedPushUpValue = UserDefaults.standard.value(forKey: C.userDefaultValues.pushUps) as? Int ?? 20
-        
-        let savedMinutesValue = UserDefaults.standard.value(forKey: C.userDefaultValues.minutes) as? Int ?? 20
-        
+
+        let savedPushUpValue = UserDefaults.standard.value(
+            forKey: C.userDefaultValues.pushUps
+        ) as? Int ?? 20
+
+        let savedMinutesValue = UserDefaults.standard.value(
+            forKey: C.userDefaultValues.minutes
+        ) as? Int ?? 20
+
         let pushUpPercentage = Double(completedPushUps) / Double(savedPushUpValue)
         let earnedMinutes = pushUpPercentage * Double(savedMinutesValue)
         let roundedMinutes = Int(earnedMinutes.rounded())
-        
+
         let earnedTimeInSeconds = roundedMinutes * 60
-        
-        let currentScreentimeEndMoment = UserDefaults.standard.value(forKey: C.userDefaultValues.screentimeEnd) as? Date ?? Date()
-        
-        let newScreentimeEndMoment = Calendar.current.date(byAdding: .second, value: earnedTimeInSeconds, to: currentScreentimeEndMoment)!
-        
-        UserDefaults.standard.set(newScreentimeEndMoment, forKey: C.userDefaultValues.screentimeEnd)
-        
+
+        let storedEndDate = UserDefaults.standard.value(
+            forKey: C.userDefaultValues.screentimeEnd
+        ) as? Date
+
+        let now = Date()
+
+        // ✅ Use now if previous screen time has expired
+        let baseDate = max(storedEndDate ?? now, now)
+
+        let newScreentimeEndMoment = Calendar.current.date(
+            byAdding: .second,
+            value: earnedTimeInSeconds,
+            to: baseDate
+        )!
+
+        UserDefaults.standard.set(
+            newScreentimeEndMoment,
+            forKey: C.userDefaultValues.screentimeEnd
+        )
+
+        print("Updating screentime: Screentime will end at \(newScreentimeEndMoment)")
     }
+
     
     private func scheduleNotifications() async {
         let allowed = await notifications.notificationsAllowed()
