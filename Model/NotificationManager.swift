@@ -97,6 +97,8 @@ final class NotificationManager {
 
             UNUserNotificationCenter.current().add(request)
         
+        print("Screentime end notification scheduled for: \(endTime)")
+        
     }
         
     

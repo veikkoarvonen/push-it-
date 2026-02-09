@@ -100,9 +100,6 @@ class PushUpsVC: UIViewController {
         
         if pushUpDetector.count > 0 {
             logWorkout(completedPushUps: pushUpDetector.count)
-            Task {
-                await scheduleNotifications()
-            }
         }
         pushUpDetector.reset()
     }
@@ -112,6 +109,9 @@ class PushUpsVC: UIViewController {
         UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateSheet)
         UserDefaults.standard.set(true, forKey: C.userDefaultValues.shouldUpdateTokens)
         updateScreentimeValue(completedPushUps: completedPushUps)
+        Task {
+            await scheduleNotifications()
+        }
     }
 
 

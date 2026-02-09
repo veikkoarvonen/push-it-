@@ -7,6 +7,7 @@
 
 import UIKit
 import FamilyControls
+import SwiftUI
 
 class ScreentimeVC: UIViewController {
     
@@ -16,6 +17,7 @@ class ScreentimeVC: UIViewController {
     var timer: Timer?
     
     private var appSelection = FamilyActivitySelection()
+    let controls = FamilyControlsManager()
    
 //MARK: VC Lifecycle
     
@@ -49,7 +51,7 @@ class ScreentimeVC: UIViewController {
     
     @objc private func handleAppTap() {
      
-        let controls = FamilyControlsManager()
+        
         
         Task { [weak self] in
                 guard let self else { return }
@@ -64,6 +66,16 @@ class ScreentimeVC: UIViewController {
                     await MainActor.run {
                         //This code runs when the authorization is granted by user for screentime
                         print("Authorization OK")
+                        print("Selected apps:", self.appSelection.applicationTokens.count)
+
+                        let sheet = AppPickerSheet(selection: Binding(
+                            get: { self.appSelection },
+                            set: { self.appSelection = $0 }
+                        ))
+                        
+                        let hosting = UIHostingController(rootView: sheet)
+                        hosting.modalPresentationStyle = .pageSheet
+                        self.present(hosting, animated: true)
                     }
 
                 } catch {
@@ -72,6 +84,11 @@ class ScreentimeVC: UIViewController {
                 }
             }
       
+    }
+    
+    @objc func handleEnableBlockingOnSelectedApps() {
+        print("Enable block tapped, user has selected \(appSelection.applicationTokens.count) apps tp block")
+        controls.enableBlocking(selection: appSelection)
     }
     
     @objc private func pushUpSliderValueChanged(_ sender: UISlider) {
@@ -220,7 +237,7 @@ extension ScreentimeVC {
         
         let appBlockContainer = UIView()
         appBlockContainer.backgroundColor = C.testUIwithBackgroundColor ? .green : .clear
-        appBlockContainer.frame = CGRect(x: 0.0, y: uiElements.remainingScreentimeContainer.frame.maxY, width: containerFrame.width, height: 50.0)
+        appBlockContainer.frame = CGRect(x: 0.0, y: uiElements.remainingScreentimeContainer.frame.maxY, width: containerFrame.width, height: 120.0)
         uiElements.backGroundView.addSubview(appBlockContainer)
         uiElements.blockAppsButtonView = appBlockContainer
         
@@ -310,13 +327,18 @@ extension ScreentimeVC {
     }
     private func setBlockAppsLabel() {
         let label = UILabel()
-        builder.styleLabel(header: label, text: "Choose the Apps to Control", fontSize: 18.0, textColor: .white, alignment: .center)
+        builder.styleLabel(header: label, text: "Choose the Apps to Control (0)", fontSize: 18.0, textColor: .white, alignment: .center)
         label.textAlignment = .center
         label.backgroundColor = C.testUIwithBackgroundColor ? .blue.withAlphaComponent(0.5) : .clear
         let marginX: CGFloat = 30.0
         let marginY: CGFloat = 5.0
         let containerFrame = uiElements.blockAppsButtonView.frame
-        label.frame = CGRect(x: marginX, y: marginY, width: containerFrame.width - marginX * 2, height: containerFrame.height - marginY * 2)
+        label.frame = CGRect(x: marginX, y: marginY, width: containerFrame.width - marginX * 2, height: containerFrame.height / 2 - marginY * 2)
+        
+        let screentimeAllowed = controls.status() == .approved
+        if screentimeAllowed {
+            label.text = "Choose the Apps to Control (\(appSelection.applicationTokens.count))"
+        }
         
         
         let appTap = UITapGestureRecognizer(target: self, action: #selector(handleAppTap))
@@ -325,7 +347,20 @@ extension ScreentimeVC {
         
         uiElements.blockAppsButtonView.addSubview(label)
         uiElements.blockAppsLabel = label
+        
+        let enableBlockButton = UIButton()
+        enableBlockButton.setTitle("Enable blocking on selected apps", for: .normal)
+        enableBlockButton.setTitleColor(.white, for: .normal)
+        enableBlockButton.titleLabel?.font = UIFont(name: C.fonts.bold, size: 20.0)
+        enableBlockButton.backgroundColor = .black
+        enableBlockButton.layer.cornerRadius = 8.0
+        enableBlockButton.addTarget(self, action: #selector(handleEnableBlockingOnSelectedApps), for: .touchUpInside)
+        uiElements.blockAppsButtonView.addSubview(enableBlockButton)
+        enableBlockButton.frame = CGRect(x: marginX, y: label.frame.maxY + marginY, width: containerFrame.width - marginX * 2, height: containerFrame.height - (label.frame.maxY + marginY * 2))
+        
     }
+    
+    
     private func setPushUpCountElements() {
         
         let marginX: CGFloat = 30.0
