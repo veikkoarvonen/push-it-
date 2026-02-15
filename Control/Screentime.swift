@@ -81,6 +81,7 @@ class ScreentimeVC: UIViewController {
     
     private func popAppSelectionSheet() {
         print("Screentime approved on user's device, presenting app selection sheet")
+        self.appSelection = blockedAppsStore.load()
         let sheet = AppPickerSheet(
                 selection: Binding(
                     get: { self.appSelection },
