@@ -18,6 +18,7 @@ class ScreentimeVC: UIViewController {
     
     private var appSelection = FamilyActivitySelection()
     private let blockedAppsStore = BlockedAppsSelectionStore()
+    private let shieldManager = ShieldManager()
    
 //MARK: VC Lifecycle
     
@@ -75,8 +76,29 @@ class ScreentimeVC: UIViewController {
 
     
     @objc func handleEnableBlockingOnSelectedApps() {
-       print("Enable blocking on selected apps tapped")
-    }
+        print("Enable blocking on selected apps tapped")
+         guard appSelection.applicationTokens.count != 0 else {
+             print("No selected apps, nothing to do here")
+             return
+         }
+         
+         guard FamilyControlsAuthorization.shared.status() == .approved else {
+             print("Screentime not approved on user's device, cannot enable blocking")
+             return
+         }
+         
+         if blockedAppsStore.isBlockingEnabled() {
+             shieldManager.clearShields()
+             blockedAppsStore.setBlockingEnabled(false)
+             uiElements.blockAppsButton.setTitle("Enable blocking on selected apps", for: .normal)
+         } else {
+             shieldManager.applyShieldsFromStoredSelection()
+             blockedAppsStore.setBlockingEnabled(true)
+             uiElements.blockAppsButton.setTitle("Disable blocking on selected apps", for: .normal)
+         }
+         
+         
+     }
     
     
     private func popAppSelectionSheet() {
@@ -383,11 +405,13 @@ extension ScreentimeVC {
         uiElements.blockAppsLabel = label
         
         let enableBlockButton = UIButton()
-        enableBlockButton.setTitle("Enable blocking on selected apps", for: .normal)
+        let buttonText = blockedAppsStore.isBlockingEnabled() ? "Disable blocking on selected apps" : "Enable blocking on selected apps"
+        enableBlockButton.setTitle(buttonText, for: .normal)
         enableBlockButton.setTitleColor(.white, for: .normal)
         enableBlockButton.titleLabel?.font = UIFont(name: C.fonts.bold, size: 20.0)
         enableBlockButton.backgroundColor = .black
         enableBlockButton.layer.cornerRadius = 8.0
+        uiElements.blockAppsButton = enableBlockButton
         enableBlockButton.addTarget(self, action: #selector(handleEnableBlockingOnSelectedApps), for: .touchUpInside)
         uiElements.blockAppsButtonView.addSubview(enableBlockButton)
         enableBlockButton.frame = CGRect(x: marginX, y: label.frame.maxY + marginY, width: containerFrame.width - marginX * 2, height: containerFrame.height - (label.frame.maxY + marginY * 2))
@@ -475,6 +499,7 @@ struct ScreentimeUIElements {
     var remainingScreenTimeLabel: UILabel!
     var blockAppsButtonView: UIView!
     var blockAppsLabel: UILabel!
+    var blockAppsButton: UIButton!
     var pushUpCountContainer: UIView!
     var pushUpSlider: UISlider!
     var pushUpLabel: UILabel!
