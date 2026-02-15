@@ -25,6 +25,7 @@ class ScreentimeVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        appSelection = blockedAppsStore.load()
     }
     
     override func viewDidLayoutSubviews() {
