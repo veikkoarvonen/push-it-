@@ -17,7 +17,7 @@ class ScreentimeVC: UIViewController {
     var timer: Timer?
     
     private var appSelection = FamilyActivitySelection()
-    let controls = FamilyControlsManager()
+    private let blockedAppsStore = BlockedAppsSelectionStore()
    
 //MARK: VC Lifecycle
     
@@ -47,49 +47,86 @@ class ScreentimeVC: UIViewController {
         terminateTimer()
     }
     
-//MARK: - Objc functions
+//MARK: - Screentime functionality
     
     @objc private func handleAppTap() {
-     
-        
-        
         Task { [weak self] in
-                guard let self else { return }
+            guard let self else { return }
 
-                do {
-                    // Only request if needed (prevents unnecessary prompts)
-                    let status = controls.status()
-                    if status != .approved {
-                        try await controls.request()
-                    }
+            let status = await FamilyControlsAuthorization.shared.requestIfNeeded()
 
-                    await MainActor.run {
-                        //This code runs when the authorization is granted by user for screentime
-                        print("Authorization OK")
-                        print("Selected apps:", self.appSelection.applicationTokens.count)
-
-                        let sheet = AppPickerSheet(selection: Binding(
-                            get: { self.appSelection },
-                            set: { self.appSelection = $0 }
-                        ))
-                        
-                        let hosting = UIHostingController(rootView: sheet)
-                        hosting.modalPresentationStyle = .pageSheet
-                        self.present(hosting, animated: true)
-                    }
-
-                } catch {
-                    print("Screen Time authorization failed:", error)
-                    // Optional: show an alert telling user to enable in Settings
+            await MainActor.run {
+                switch status {
+                case .approved:
+                    print("✅ Approved")
+                    self.popAppSelectionSheet()      // your function
+                case .denied:
+                    print("❌ Denied")
+                    self.showScreenTimeDeniedAlert() // optional
+                case .notDetermined:
+                    print("⚠️ Not determined (user likely cancelled)")
+                    // optional: do nothing
+                @unknown default:
+                    print("⚠️ Unknown authorization status:", status)
                 }
             }
-      
+        }
     }
+
     
     @objc func handleEnableBlockingOnSelectedApps() {
-        print("Enable block tapped, user has selected \(appSelection.applicationTokens.count) apps tp block")
-        controls.enableBlocking(selection: appSelection)
+       print("Enable blocking on selected apps tapped")
     }
+    
+    
+    private func popAppSelectionSheet() {
+        print("Screentime approved on user's device, presenting app selection sheet")
+        let sheet = AppPickerSheet(
+                selection: Binding(
+                    get: { self.appSelection },
+                    set: { self.appSelection = $0 }
+                ),
+                onDismiss: { [weak self] selection in
+                    guard let self else { return }
+
+                    let count = selection.applicationTokens.count
+                    print("App blocking sheet dismissed")
+                    print("Selected apps:", count)
+
+                    // Update UI label here if needed
+                    self.updateSelectedAppsLabel(count: count)
+                    self.storeAppBlockSelection(selection: selection)
+                }
+            )
+
+            let hostingController = UIHostingController(rootView: sheet)
+            hostingController.modalPresentationStyle = .pageSheet
+            hostingController.isModalInPresentation = true   // ✅ blocks swipe-down dismiss
+
+            present(hostingController, animated: true)
+    }
+    
+    private func showScreenTimeDeniedAlert() {
+        let alert = UIAlertController(
+            title: "Screen Time Permission Needed",
+            message: "To block selected apps, enable Screen Time permission in Settings.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func updateSelectedAppsLabel(count: Int) {
+        uiElements.blockAppsLabel.text = "Choose the apps to control: \(count)"
+    }
+    
+    private func storeAppBlockSelection(selection: FamilyActivitySelection) {
+        blockedAppsStore.save(selection)
+    }
+
+
+ 
+//MARK: - Slider functionality
     
     @objc private func pushUpSliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(sender.value.rounded())
@@ -133,57 +170,56 @@ class ScreentimeVC: UIViewController {
         
     }
     
-//MARK: - Timer logic
-    
-    private func terminateTimer() {
-        guard timer != nil else { return }
-        print("Terminating timer")
-        timer!.invalidate()
-        timer = nil
-    }
-    
-    private func initializeTimer() {
-        guard timer == nil && hasSetUI else { return }
-        print("Initializing timer")
-        timer?.invalidate()
-        
-        updateScreentimeLabel()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.updateScreentimeLabel()
-            print("Timer fired")
-        }
-    }
-    
-    private func updateScreentimeLabel() {
-        let screentimeEndMoment = UserDefaults.standard.value(forKey: C.userDefaultValues.screentimeEnd) as? Date ?? Date()
-        let now = Date()
-        
-        let remainingSeconds = max(0, Int(screentimeEndMoment.timeIntervalSince(now)))
-        uiElements.remainingScreenTimeLabel.text = format(seconds: remainingSeconds)
-        
-        if remainingSeconds <= 0 {
-            terminateTimer()
-        }
-    }
-    
-    private func format(seconds: Int) -> String {
-        let h = seconds / 3600
-        let m = (seconds % 3600) / 60
-        let s = seconds % 60
-
-        if h > 0 {
-            return String(format: "%d:%02d:%02d", h, m, s)
-        } else {
-            return String(format: "%02d:%02d", m, s)
-        }
-    }
-
-    
-   
-
 }
 
+//MARK: - Timer logic
 
+extension ScreentimeVC {
+    
+        private func terminateTimer() {
+            guard timer != nil else { return }
+            print("Terminating timer")
+            timer!.invalidate()
+            timer = nil
+        }
+        
+        private func initializeTimer() {
+            guard timer == nil && hasSetUI else { return }
+            print("Initializing timer")
+            timer?.invalidate()
+            
+            updateScreentimeLabel()
+            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                self?.updateScreentimeLabel()
+                print("Timer fired")
+            }
+        }
+        
+        private func updateScreentimeLabel() {
+            let screentimeEndMoment = UserDefaults.standard.value(forKey: C.userDefaultValues.screentimeEnd) as? Date ?? Date()
+            let now = Date()
+            
+            let remainingSeconds = max(0, Int(screentimeEndMoment.timeIntervalSince(now)))
+            uiElements.remainingScreenTimeLabel.text = format(seconds: remainingSeconds)
+            
+            if remainingSeconds <= 0 {
+                terminateTimer()
+            }
+        }
+        
+        private func format(seconds: Int) -> String {
+            let h = seconds / 3600
+            let m = (seconds % 3600) / 60
+            let s = seconds % 60
+
+            if h > 0 {
+                return String(format: "%d:%02d:%02d", h, m, s)
+            } else {
+                return String(format: "%02d:%02d", m, s)
+            }
+        }
+    
+}
 
 //MARK: - UI builder
 
@@ -327,7 +363,8 @@ extension ScreentimeVC {
     }
     private func setBlockAppsLabel() {
         let label = UILabel()
-        builder.styleLabel(header: label, text: "Choose the Apps to Control (0)", fontSize: 18.0, textColor: .white, alignment: .center)
+        let selectedAppsCount = blockedAppsStore.load().applicationTokens.count
+        builder.styleLabel(header: label, text: "Choose the Apps to Control \(selectedAppsCount)", fontSize: 18.0, textColor: .white, alignment: .center)
         label.textAlignment = .center
         label.backgroundColor = C.testUIwithBackgroundColor ? .blue.withAlphaComponent(0.5) : .clear
         let marginX: CGFloat = 30.0
@@ -335,10 +372,6 @@ extension ScreentimeVC {
         let containerFrame = uiElements.blockAppsButtonView.frame
         label.frame = CGRect(x: marginX, y: marginY, width: containerFrame.width - marginX * 2, height: containerFrame.height / 2 - marginY * 2)
         
-        let screentimeAllowed = controls.status() == .approved
-        if screentimeAllowed {
-            label.text = "Choose the Apps to Control (\(appSelection.applicationTokens.count))"
-        }
         
         
         let appTap = UITapGestureRecognizer(target: self, action: #selector(handleAppTap))

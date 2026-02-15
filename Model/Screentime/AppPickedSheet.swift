@@ -12,16 +12,22 @@ struct AppPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selection: FamilyActivitySelection
 
+    let onDismiss: (FamilyActivitySelection) -> Void
+
     var body: some View {
         NavigationView {
             FamilyActivityPicker(selection: $selection)
                 .navigationTitle("Choose Apps")
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
+                        Button("Done") {
+                            onDismiss(selection)   // ✅ callback
+                            dismiss()
+                        }
                     }
                 }
         }
     }
 }
+
 

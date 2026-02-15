@@ -7,6 +7,7 @@
 
 import UIKit
 import SceneKit
+import FamilyControls
 
 class TokensVC: UIViewController {
     
@@ -19,6 +20,7 @@ class TokensVC: UIViewController {
         // Do any additional setup after loading the view.
         setUI()
         reloadTokenViews()
+        //print(BlockedAppsSelectionStore.shared.load().applicationTokens.count)
         //setScene()
     }
     
