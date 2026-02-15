@@ -83,11 +83,6 @@ class ScreentimeVC: UIViewController {
              return
          }
          
-         guard FamilyControlsAuthorization.shared.status() == .approved else {
-             print("Screentime not approved on user's device, cannot enable blocking")
-             return
-         }
-         
          if blockedAppsStore.isBlockingEnabled() {
              shieldManager.clearShields()
              blockedAppsStore.setBlockingEnabled(false)
