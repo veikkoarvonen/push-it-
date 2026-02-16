@@ -27,6 +27,22 @@ class SettingsVC: UIViewController {
         guard let url = URL(string: "https://www.liikax.fi/termsofuseapp") else { return }
         UIApplication.shared.open(url)
     }
+    
+    @objc private func sosPressed() {
+        print("Sos tapped")
+        DeviceActivityManager.shared.stopMonitoring()
+        ShieldManager.shared.clearShields()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        BlockedAppsSelectionStore.shared.clear()
+        
+        let alert = UIAlertController(
+            title: "Emergency Unlock Pressed",
+            message: "All apps have been unblocked and screentime limitations stopped.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 
 
 
@@ -161,7 +177,42 @@ extension SettingsVC {
             action: #selector(openTermsOfUse)
         )
         termsLabel.addGestureRecognizer(termsTap)
+        
+        
+        let emergencyUnlockLabel = UILabel()
+        builder.styleLabel(header: emergencyUnlockLabel, text: "Emergency Unlock", fontSize: 20, textColor: .white, alignment: .center)
+        emergencyUnlockLabel.textAlignment = .center
+        emergencyUnlockLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(emergencyUnlockLabel)
+        
+        NSLayoutConstraint.activate([
+            emergencyUnlockLabel.leadingAnchor.constraint(equalTo: bgView.leadingAnchor),
+            emergencyUnlockLabel.trailingAnchor.constraint(equalTo: bgView.trailingAnchor),
+            emergencyUnlockLabel.bottomAnchor.constraint(equalTo: bgView.bottomAnchor),
+            emergencyUnlockLabel.heightAnchor.constraint(equalToConstant: 50.0)
+        ])
+        
+        let sosImage = UIImageView()
+        sosImage.image = UIImage(named: "sos")
+        view.addSubview(sosImage)
+        sosImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sosImage.heightAnchor.constraint(equalToConstant: 90.0),
+            sosImage.widthAnchor.constraint(equalToConstant: 90.0),
+            sosImage.bottomAnchor.constraint(equalTo: emergencyUnlockLabel.topAnchor, constant: -10.0),
+            sosImage.centerXAnchor.constraint(equalTo: bgView.centerXAnchor)
+        ])
+        
+        sosImage.isUserInteractionEnabled = true
 
+        let sosTap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(sosPressed)
+        )
+        sosImage.addGestureRecognizer(sosTap)
+        
+        
         
     }
     

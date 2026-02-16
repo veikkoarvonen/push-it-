@@ -36,12 +36,17 @@ class ScreentimeVC: UIViewController {
         setUI()
         reloadSliderValues()
         initializeTimer()
+        uiElements.blockAppsButton.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("Screentime view will appear")
         initializeTimer()
+        appSelection = blockedAppsStore.load()
+        let count = appSelection.applicationTokens.count
+        guard uiElements.blockAppsLabel != nil else { return }
+        updateSelectedAppsLabel(count: count)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -109,6 +114,7 @@ class ScreentimeVC: UIViewController {
                     // Update UI label here if needed
                     self.updateSelectedAppsLabel(count: count)
                     self.storeAppBlockSelection(selection: selection)
+                    self.shieldManager.applyShieldsFromStoredSelection()
                 }
             )
 
@@ -123,6 +129,16 @@ class ScreentimeVC: UIViewController {
         let alert = UIAlertController(
             title: "Screen Time Permission Needed",
             message: "To block selected apps, enable Screen Time permission in Settings.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func showNoAppsBlockedAlert(blockedApps: Int) {
+        let alert = UIAlertController(
+            title: "App blocklist updated: \(blockedApps) apps",
+            message: "Press the 'Enable blocking on selected apps' button to apply current blocklist.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
