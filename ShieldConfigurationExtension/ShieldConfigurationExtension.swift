@@ -19,7 +19,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
             backgroundColor: .black,
             icon: UIImage(systemName: "bolt.fill"),
             title: .init(text: "This app is blocked", color: .black),
-            subtitle: .init(text: "Open Push Up Pal to earn more screentime", color: .black),
+            subtitle: .init(text: "Open PushUp Pal to earn more screentime", color: .black),
             primaryButtonLabel: .init(text: "OK", color: .white),
             //secondaryButtonLabel: .init(text: "Dismiss", color: .lightGray)
         )

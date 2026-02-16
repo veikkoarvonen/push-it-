@@ -460,7 +460,7 @@
 				DEVELOPMENT_TEAM = Q2TQZ8WL57;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Push It!/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Liikax - Push-Up Pal";
+				INFOPLIST_KEY_CFBundleDisplayName = "PushUp Pal";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera to detect push ups";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -495,7 +495,7 @@
 				DEVELOPMENT_TEAM = Q2TQZ8WL57;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Push It!/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Liikax - Push-Up Pal";
+				INFOPLIST_KEY_CFBundleDisplayName = "PushUp Pal";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses camera to detect push ups";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
