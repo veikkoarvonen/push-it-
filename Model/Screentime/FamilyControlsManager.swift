@@ -8,6 +8,7 @@
 import Foundation
 import FamilyControls
 import ManagedSettings
+import DeviceActivity
 
 final class FamilyControlsAuthorization {
     static let shared = FamilyControlsAuthorization()
@@ -140,4 +141,46 @@ final class ShieldManager {
     
     
 }
+
+
+final class BlockingScheduler {
+    static let shared = BlockingScheduler()
+    init() {}
+
+    private let center = DeviceActivityCenter()
+    private let activityName = DeviceActivityName("blockAfterEndDate")
+
+    func rescheduleBlockingStart(at endDate: Date) {
+        // Stop any previous schedule
+        center.stopMonitoring([activityName])
+
+        // If endDate already passed, we want blocking immediately.
+        if endDate <= Date() {
+            // Extension can also enforce, but do immediate shielding from app if you want.
+            // (Or just start monitoring "now".)
+        }
+
+        // Create a long interval starting exactly at endDate
+        let start = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute,.second], from: endDate)
+
+        // End far in the future so "blocked mode" stays active until you clear it
+        let farFuture = endDate.addingTimeInterval(60 * 60 * 24 * 365 * 5) // 5 years
+        let end = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute,.second], from: farFuture)
+
+        let schedule = DeviceActivitySchedule(
+            intervalStart: start,
+            intervalEnd: end,
+            repeats: false
+        )
+
+        do {
+            try center.startMonitoring(activityName, during: schedule)
+            print("✅ Scheduled blocking to start at:", endDate)
+        } catch {
+            print("❌ Failed to start monitoring:", error)
+        }
+    }
+}
+
+
 
