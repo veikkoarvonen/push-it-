@@ -19,6 +19,7 @@ class ScreentimeVC: UIViewController {
     private var appSelection = FamilyActivitySelection()
     private let blockedAppsStore = BlockedAppsSelectionStore()
     private let shieldManager = ShieldManager()
+    private let deviceActivity = DeviceActivityManager()
    
 //MARK: VC Lifecycle
     
@@ -79,19 +80,12 @@ class ScreentimeVC: UIViewController {
     @objc func handleEnableBlockingOnSelectedApps() {
         print("Enable blocking on selected apps tapped")
          guard appSelection.applicationTokens.count != 0 else {
-             print("No selected apps, nothing to do here")
+             shieldManager.clearShields()
+             deviceActivity.stopMonitoring()
              return
          }
          
-         if blockedAppsStore.isBlockingEnabled() {
-             shieldManager.clearShields()
-             blockedAppsStore.setBlockingEnabled(false)
-             uiElements.blockAppsButton.setTitle("Enable blocking on selected apps", for: .normal)
-         } else {
-             shieldManager.applyShieldsFromStoredSelection()
-             blockedAppsStore.setBlockingEnabled(true)
-             uiElements.blockAppsButton.setTitle("Disable blocking on selected apps", for: .normal)
-         }
+        shieldManager.applyShieldsFromStoredSelection()
          
          
      }

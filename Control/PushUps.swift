@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FamilyControls
 
 class PushUpsVC: UIViewController {
 
@@ -28,6 +29,7 @@ class PushUpsVC: UIViewController {
     
     let coreData = CoreDataManager()
     let notifications = NotificationManager()
+    let shieldManager = ShieldManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -156,7 +158,9 @@ extension PushUpsVC {
             newScreentimeEndMoment,
             forKey: C.userDefaultValues.screentimeEnd
         )
-
+        
+        checkAuthorizationForBlocking(blockingUntil: newScreentimeEndMoment)
+        
         print("Updating screentime: Screentime will end at \(newScreentimeEndMoment)")
     }
 
@@ -166,6 +170,40 @@ extension PushUpsVC {
         guard allowed else { return }
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         notifications.scheduleScreentimeEndNotification()
+    }
+    
+    private func checkAuthorizationForBlocking(blockingUntil date: Date) {
+        
+        Task { [weak self] in
+            guard let self else { return }
+
+            let status = await FamilyControlsAuthorization.shared.requestIfNeeded()
+
+            await MainActor.run {
+                switch status {
+                case .approved:
+                    self.scheduleBlocking(until: date)
+                case .denied:
+                    self.showScreentimeAccessDeniedAlert()
+                case .notDetermined:
+                    self.showScreentimeAccessDeniedAlert()
+                @unknown default:
+                    print("⚠️ Unknown authorization status:", status)
+                }
+            }
+        }
+    }
+    
+    private func scheduleBlocking(until endDate: Date) {
+        let deviceActivity = DeviceActivityManager()
+        shieldManager.clearShields()
+        deviceActivity.scheduleEndOfScreentime(until: endDate)
+    }
+    
+    private func showScreentimeAccessDeniedAlert() {
+        let alert = UIAlertController(title: "Screentime access denied", message: "Workout was logged, but you need to allow access to your screen time in settings to block apps", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
 }

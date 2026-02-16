@@ -35,7 +35,7 @@ final class FamilyControlsAuthorization {
 }
 
 final class BlockedAppsSelectionStore {
-    static let shared = BlockedAppsSelectionStore()
+    static public let shared = BlockedAppsSelectionStore()
 
     // ✅ Replace with your real App Group identifier
     // Example: "group.com.yourcompany.yourapp"

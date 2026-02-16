@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FamilyControls
 
 class OverviewVC: UIViewController {
     
@@ -106,7 +107,6 @@ class OverviewVC: UIViewController {
     @objc private func backgroundTapped() {
         print("Background tapped")
         uiElements.pushUpDisplayView.isHidden = true
-        //NotificationManager.shared.scheduleTestNotification(after: 5.0)
     }
 
 
