@@ -14,7 +14,7 @@ final class PushUpDetector {
     enum Status { case detecting, bodyNotVisible, up, down, moving, visionError }
 
     // Tune these after testing
-    var downThreshold: CGFloat = 90
+    var downThreshold: CGFloat = 100
     var upThreshold: CGFloat = 145
     var minConfidence: Float = 0.3
 

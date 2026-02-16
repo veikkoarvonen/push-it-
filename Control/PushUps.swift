@@ -24,7 +24,7 @@ class PushUpsVC: UIViewController {
     //Push up detection
     private let pushUpDetector = PushUpDetector()
     private var lastVisionTime = CACurrentMediaTime()
-    private let visionInterval: CFTimeInterval = 0.10 // ~10 FPS
+    private let visionInterval: CFTimeInterval = 0.05 // ~10 FPS
     private var requiredPushUps: Int = 20 //Default value
     
     let coreData = CoreDataManager()
@@ -102,8 +102,10 @@ class PushUpsVC: UIViewController {
         
         if pushUpDetector.count > 0 {
             logWorkout(completedPushUps: pushUpDetector.count)
+            if withAlert { displayPushUpCompletionAlert(title: "Congrats!", completedPushUps: pushUpDetector.count) }
         }
         pushUpDetector.reset()
+        
     }
     
     private func logWorkout(completedPushUps: Int) {
